@@ -1,0 +1,23 @@
+<FilesMatch "\.(bak|inc|lib|sh|tpl|lbi|dwt)$">
+    order deny,allow
+    deny from all
+</FilesMatch>
+
+RewriteEngine On
+RewriteBase /
+rewritecond %{request_filename} !-f
+# direct one-word access
+RewriteRule ^index\.html$    index\.php [L]
+# access any object by its numeric identifier
+#m/a/id-1-c-2-d-3-e-4.html
+RewriteRule ^(\w+)/(\w+)/(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)\.html$  index.php?m=$1&a=$2&$3=$4&$5=$6&$7=$8&$9=$10 [t]
+#m/a/id-1-c-2-d-3.html
+RewriteRule ^(\w+)/(\w+)/(\w+)-(\w+)-(\w+)-(\w+)-(\w+)-(\w+)\.html$    index.php?m=$1&a=$2&$3=$4&$5=$6&$7=$8 [t]
+#m/a/id-1-c-2.html
+RewriteRule ^(\w+)/(\w+)/(\w+)-(\w+)-(\w+)-(\w+)\.html$    index.php?m=$1&a=$2&$3=$4&$5=$6 [t]
+#m/a/id-1.html
+RewriteRule ^(\w+)/(\w+)/(\w+)-(\w+)\.html$    index.php?m=$1&a=$2&$3=$4 [t]
+#m a
+RewriteRule ^(\w+)/(\w+)\.html$    index.php?m=$1&a=$2 [t]
+#m首页
+RewriteRule ^(\w+)\.html$    index.php?m=$1 [t]
