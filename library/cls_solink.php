@@ -16,16 +16,22 @@ class solink{
 	public $domain;//主域名
 	public function __construct($config=array()){
 		$this->url=isset($config['url'])?$config['url']:"";//要采集的url
-		$this->selfsite=isset($config['selfsite'])?$config['selfsite']:0;//1 只采集自己当前域名的站 0.采集主域名及子域名 2.采集所有  
-		$this->parseurl();
+		$this->selfsite=isset($config['selfsite'])?$config['selfsite']:0;//1 只采集自己当前域名的站 0.采集主域名及子域名 2.采集所有
+		if($this->url){  
+			$this->parseurl();
+		}
 	}
 	public function set($config=array()){
 		$this->url=isset($config['url'])?$config['url']:"";//要采集的url
 		$this->selfsite=isset($config['selfsite'])?$config['selfsite']:2;//1 只采集自己当前域名的站 0.采集主域名及子域名 2.采集所有  
 		$this->parseurl();
 	}
-	public function get_content(){
-	 	$this->content=$this->toutf8($this->curl_get_contents($this->url));
+	public function get_content($content=''){
+		if($content){
+			$this->content=$this->toutf8($content);
+		}else{
+	 		$this->content=$this->toutf8($this->curl_get_contents($this->url));
+		}
 	 
 	}
 	public function get_link(){
@@ -44,6 +50,25 @@ class solink{
 		if(isset($a[1])) return $a[1];
 		return false;
 	}
+	
+	public function get_keywords(){
+		preg_match("/<meta.*name=[\'\"]keywords[\'\"][^>]*>/i",$this->content,$a);
+		if(empty($a)) return false;
+		$b=$a[0];
+		preg_match("/content=[\'\"]([^'\"]*)/i",$b,$a);
+		if(isset($a[1])) return $a[1];
+		return false;
+	}
+	
+	public function get_description(){
+		preg_match("/<meta.*name=[\'\"]description[\'\"][^>]*>/i",$this->content,$a);
+		if(empty($a)) return false;
+		$b=$a[0];
+		preg_match("/content=[\'\"]([^'\"]*)/i",$b,$a);
+		if(isset($a[1])) return $a[1];
+		return false;
+	}
+	
 	public function parseurl(){
 		$arr=parse_url($this->url);
 		$this->host=$arr['host'];

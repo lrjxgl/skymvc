@@ -485,44 +485,23 @@ class skymvc
 	}
 	
 	/*hook插件机制*/
-	public function hook($param=array()){
+	public function hook($fun,$param=array()){
 		$m=get('m','h');
 		$a=get('a','h');
 		$m=$m?$m:"index";
 		$a=$a?$a:"default";
-		$this->loadconfig("hook");
-		$hook=$this->config_item("hook");
-		$data=$hook[$m."_".$a];
-		  
-		if($data){
-			foreach($data as $k=>$v){
-				if(file_exists(HOOK_DIR."/".$v[0].".hook.php")){
-					require_once(HOOK_DIR."/".$v[0].".hook.php");
-					$class=$v[0]."hook";
-					$h=new $class(array("hook"=>1));
-					$h->$v[1]($param);
-				}
+		if(file_exists(HOOK_DIR."/".$m.".hook.php")){
+			require_once(HOOK_DIR."/".$m.".hook.php");
+			$class=$m."hook";
+			if(method_exists($class,$fun)){
+				$h=new $class();
+				return $h->$fun($param);
 			}
 		}
+		return false;
+		 
 	}
-	/*全局hook*/
-	public function hook_auto(){
-		$this->loadconfig("hook");
-		$hook=$this->config_item("hook");
-		
-		$data=$hook['hook_auto'];
-		print_r($data);
-		if($data){
-			foreach($data as $k=>$v){
-				if(file_exists(HOOK_DIR."/".$v[0].".hook.php")){
-					require_once(HOOK_DIR."/".$v[0].".hook.php");
-					$class=$v[0]."hook";
-					$h=new $class(array("hook"=>1));
-					$h->$v[1]($param);
-				}
-			}
-		}
-	}
+	
 	
 	/*分页函数*/
 	function pagelist($rscount,$pagesize,$url,$num=0){

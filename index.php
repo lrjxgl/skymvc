@@ -2,6 +2,7 @@
 header("Content-type:text/html;charset=utf-8;");
 if(!file_exists('install.lock'))
 {
+	umkdir("../api");//生成api目录
 	umkdir("../config");//生成配置文件夹
 	umkdir("../source/admin");//建立后台控制文件
 	umkdir("../source/hook");
@@ -15,19 +16,25 @@ if(!file_exists('install.lock'))
 	umkdir("../static/css");//css静态文件
 	umkdir("../static/js");//js静态文件
 	umkdir("../static/images");//静态文件
-	umkdir("../plugin");//插件目录
+	umkdir("../plugin");//插件js目录
 	umkdir("../temp/compiled");//模版编译目录
 	umkdir("../temp/caches");//缓存目录
 	umkdir("../temp/html");//静态文件目录
 	umkdir("../temp/log");//静态文件目录
 	umkdir("../lang/chinese");//语言包
-	
+	/****module******/
+	umkdir("../module/test/source/admin");
+	umkdir("../module/test/source/index");
+	umkdir("../module/test/source/model");
+	umkdir("../module/test/source/hook");
+	umkdir("../module/test/themes/admin");
+	umkdir("../module/test/themes/index");
+	umkdir("../module/test/themes/wap");
 	//生成配置文件
  
 	$str=' 
  
-define("DOMAIN","skymvc.com");
-define("WAP_DOMAIN",""); 
+
 define("MYSQL_CHARSET","utf8");
 define("TABLE_PRE","sky_");
 /*
@@ -55,7 +62,7 @@ $VMDBS=array(
 	"forum"=>"article"
 );
 */ 
-*/
+ 
 /*缓存配置*/
 $cacheconfig=array(
 	"file"=>true,
@@ -72,35 +79,8 @@ define("HOOK_AUTO",false);//开放全局hook
 
  
  ';
-	file_put_contents("../config/config.php","<?php\r\n{$str}\r\n?>");
-//生成hook配置
-$str='<?php
-$config["hook"]=array(
-	"index_default"=>array(
-		"test"=>"run",
-	),
+ file_put_contents("../config/config.php","<?php\r\n{$str}\r\n?>");
 
-);
-?>';
-file_put_contents("../config/hook.php",$str);
-//生成cache配置文件
-$str='<?php
-$config[\'cache\']=array(	
-	\'cache_type\'=>"file",
-	"cache_dir"=>"temp/filecache",
-	/*
-	\'memcache\'=>array(
-		"host"=>"localhost",
-		"port"=>"11211",
-	),
-	"mysql"=>array(
-	
-	),
-	*/
-);
-
-?>';
-file_put_contents("../config/cache.php",$str);
 //生成常数文件
 $str='<?php
 define("STATIC_SITE","http://".$_SERVER[\'HTTP_HOST\']."/");
@@ -116,15 +96,7 @@ define("WAPSKINS","wap");
 define("WAP_DOMAIN","wap.com");
 ?>';
 file_put_contents("../config/const.php",$str);
-//生成缩略图配置文件
-$str='<?php
-$config[\'thumb\']=array(
-	array("w"=>100,"h"=>100,"all"=>1),
-	array("w"=>220,"h"=>999,"all"=>0),
-	array("w"=>400,"h"=>999,"all"=>0)
-);
-?>';
-file_put_contents("../config/image.php",$str);
+
 //生成数据表配置文件
 $str='<?php 
 	/*
@@ -160,6 +132,9 @@ define("HOOK_DIR","source/hook");
 $cache_dir="";//模版缓存文件夹
 $template_dir="themes/".SKINS;//模版风格文件夹
 $wap_template_dir="themes/".WAPSKINS;
+if(!file_exists($wap_template_dir)){
+	$wap_template_dir=$template_dir;	
+}
 $compiled_dir="";//模版编译文件夹
 $html_dir="";//生成静态文件夹
 $rewrite_on=REWRITE_ON;//是否开启伪静态 0不开 1开启
@@ -168,10 +143,14 @@ $smarty_cache_lifetime=3600;//缓存时间
 require("./skymvc/skymvc.php");
 //用户自定义初始化函数
 function userinit(&$base){
-	$base->loadConfig("table");
-	$base->smarty->assign("skins","/skins/index/");
-	$base->smarty->assign("appindex",APPINDEX);
-	$base->smarty->assign("appadmin",APPADMIN);
+	global $wap_template_dir,$template_dir;
+	$skins=ISWAP?$wap_template_dir:$template_dir;
+	C()->loadConfig("table");
+	C()->smarty->assign(array(
+		"skins"=>$skins,
+		"appindex"=>APPINDEX,
+		"appadmin"=>APPADMIN
+	));
 }
 
 ?>';
@@ -188,12 +167,12 @@ if(ini_get("register_globals"))
 require("config/config.php");
 require("config/const.php");
 define("ROOT_PATH",  str_replace("\\\\", "/", dirname(__FILE__))."/");
-define("CONTROL_DIR","source/index");
+define("CONTROL_DIR","source/admin");
 define("MODEL_DIR","source/model");
 define("HOOK_DIR","source/hook");
 /*视图模版配置*/
 $cache_dir="";//模版缓存文件夹
-$template_dir="themes/admin";//模版风格文件夹
+$wap_template_dir=$template_dir="themes/admin";//模版风格文件夹
 $compiled_dir="";//模版编译文件夹
 $html_dir="";//生成静态文件夹
 $rewrite_on=REWRITE_ON;//是否开启伪静态 0不开 1开启
@@ -202,15 +181,104 @@ $smarty_cache_lifetime=3600;//缓存时间
 require("./skymvc/skymvc.php");
 //用户自定义初始化函数
 function userinit(&$base){
-	$base->loadConfig("table");
-	$base->smarty->assign("skins","/skins/admin/");
-	$base->smarty->assign("appindex",APPINDEX);
-	$base->smarty->assign("appadmin",APPADMIN); 
+	global $wap_template_dir,$template_dir;
+	$skins=ISWAP?$wap_template_dir:$template_dir;
+	C()->loadConfig("table");
+ 
+	C()->smarty->assign(array(
+		"skins"=>$skins,
+		"appindex"=>APPINDEX,
+		"appadmin"=>APPADMIN
+	));
 }
 
 ?>';
 	file_put_contents("../admin.php",$str);
 
+//生成module.php
+$str='<?php
+error_reporting(E_ALL ^ E_NOTICE);
+header("Content-type:text/html; charset=utf-8");
+define("ROOT_PATH",  str_replace("\\\\", "/", dirname(__FILE__))."/");
+require(ROOT_PATH."config/config.php");
+require(ROOT_PATH."config/const.php");
+$module=isset($_GET[\'module\'])?$_GET[\'module\']:"";
+$m=isset($_GET[\'m\'])?$_GET[\'m\']:"";
+$mm=explode("_",$m);
+$module=!empty($module)?$module:$mm[0];
+$module=str_replace(array("/","\\\\","."),"",htmlspecialchars($module));
+if(empty($m) && empty($module)) exit(\'模块未安装\');
+define("CONTROL_DIR",ROOT_PATH."module/{$module}/source/index");
+define("MODEL_DIR",ROOT_PATH."source/model");
+define("HOOK_DIR","module/{$module}/source/hook");
+/*视图模版配置*/
+$cache_dir="";//模版缓存文件夹
+$template_dir="module/".$module."/themes/index";//模版风格文件夹
+$wap_template_dir="module/".$module."/themes/wap";//模版风格文件夹
+if(!file_exists($wap_template_dir)){
+	$wap_template_dir=$template_dir;	
+}
+
+$compiled_dir="";//模版编译文件夹
+$html_dir="";//生成静态文件夹
+$rewrite_on=REWRITE_ON;//是否开启伪静态 0不开 1开启
+$smarty_caching=true;//是否开启缓存
+$smarty_cache_lifetime=3600;//缓存时间
+ 
+require("./skymvc/skymvc.php");
+//用户自定义初始化函数
+function userinit(&$base){
+	global $wap_template_dir,$template_dir;
+	$skinsmodule=ISWAP?$wap_template_dir:$template_dir;
+	c()->smarty->assign(array(
+		"skinsmodule"=>$skinsmodule,
+	));
+}
+
+?>';
+
+file_put_contents("../module.php",$str);
+
+$str='<?php
+error_reporting(E_ALL ^ E_NOTICE);
+header("Content-type:text/html; charset=utf-8");
+define("ROOT_PATH",  str_replace("\\\\", "/", dirname(__FILE__))."/");
+require(ROOT_PATH."config/config.php");
+require(ROOT_PATH."config/const.php");
+$module=isset($_GET[\'module\'])?$_GET[\'module\']:"";
+$m=isset($_GET[\'m\'])?$_GET[\'m\']:"";
+$mm=explode("_",$m);
+$module=!empty($module)?$module:$mm[0];
+$module=str_replace(array("/","\\\\","."),"",htmlspecialchars($module));
+if(empty($m) && empty($module)) exit(\'模块未安装\');
+define("CONTROL_DIR",ROOT_PATH."module/{$module}/source/admin");
+define("MODEL_DIR",ROOT_PATH."source/model");
+define("HOOK_DIR","source/{$module}/source/hook");
+/*视图模版配置*/
+$cache_dir="";//模版缓存文件夹
+$wap_template_dir=$template_dir="module/".$module."/themes/admin/";//模版风格文件夹
+
+$compiled_dir="";//模版编译文件夹
+$html_dir="";//生成静态文件夹
+$rewrite_on=REWRITE_ON;//是否开启伪静态 0不开 1开启
+$smarty_caching=true;//是否开启缓存
+$smarty_cache_lifetime=3600;//缓存时间
+ 
+require("./skymvc/skymvc.php");
+//用户自定义初始化函数
+function userinit(&$base){
+	global $wap_template_dir,$template_dir;
+	$skinsmodule=ISWAP?$wap_template_dir:$template_dir;
+	c()->smarty->assign(array(
+		"skinsmodule"=>$skinsmodule,
+	));
+}
+
+ 
+
+?>';
+
+file_put_contents("../moduleadmin.php",$str);
 
 //控制文件admin/ctrl/index.ctrl.php
 $str='<?php
@@ -218,9 +286,10 @@ class indexControl extends skymvc
 {
 	function __construct()
 	{
-		parent::__construct();//父类厨师话
-		$this->loadModel("index");
+		parent::__construct();
 	}
+	
+	
 
 	public function onDefault()
 	{
@@ -229,7 +298,8 @@ class indexControl extends skymvc
 		}else{
 			$this->smarty->assign("welcome","欢迎使用<a href=\"http://www.skymvc.com\" target=\"_blank\">skymvc</a>，让我们共同努力！");
 		}
-		$this->smarty->assign("who",$this->index->test());
+		$this->hook("run","这是传入hook的数据");
+		$this->smarty->assign("who",M("index")->test());
 		$this->smarty->display("index.html");
 	}
 }
@@ -237,21 +307,27 @@ class indexControl extends skymvc
 ?>';
 file_put_contents("../source/index/index.ctrl.php",$str);
 file_put_contents("../source/admin/index.ctrl.php",$str);
+file_put_contents("../module/test/source/index/index.ctrl.php",$str);
+file_put_contents("../module/test/source/admin/index.ctrl.php",$str);
 //hook文件
 $str='<?php
-class testHook extends skymvc {
+class indexHook extends skymvc {
 	
 	public function __construct(){
 		parent::__construct();
 	}
 	
-	public function run($data=array()){
-		$data=$this->db->select("article",array("start"=>0,"limit"=>10));
-		
+	public function run($indata=array()){
+		$data="这是hook返回的数据";		
+		c()->smarty->assign(array(
+			"hook_redata"=>$data,
+			"hook_indata"=>$indata
+		));
 	}
 }
 ?>';
-file_put_contents("../source/hook/test.hook.php",$str);
+file_put_contents("../source/hook/index.hook.php",$str);
+file_put_contents("../module/test/source/hook/index.hook.php",$str);
 //模型文件  index.model.php
 $str='<?php
 class indexModel extends model
@@ -278,8 +354,14 @@ class indexModel extends model
 
 ?>';
 file_put_contents("../source/model/index.model.php",$str);
+file_put_contents("../module/test/source/model/index.model.php",$str);
 //生成模板文件 index.html
-$str='<html>
+$str='<!DOCTYPE >
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>这是PC版</title>
+</head>
 <body>
 <div style="width:600px; text-align:center; margin: 0 auto; background-color:#C4E6A2; margin-top:100px; height:400px; line-height:40px; ">
 <h3 style="height:80px; line-height:80px;">{$welcome}</h3>
@@ -288,7 +370,9 @@ $str='<html>
 {$w}<br>
 {/foreach}
 
-
+{$hook_indata}<br>
+{$hook_redata}<br>
+{$skins}
 </div>
 
 </body>
@@ -296,28 +380,47 @@ $str='<html>
 </html>';
 file_put_contents("../themes/index/index.html",$str);
 file_put_contents("../themes/admin/index.html",$str);
+file_put_contents("../module/test/themes/admin/index.html",$str);
+file_put_contents("../module/test/themes/index/index.html",$str);
+$str='<!DOCTYPE >
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>这是手机版</title>
+</head>
+
+<body>
+<div style=" text-align:center; margin: 0 auto; background-color:#C4E6A2; line-height:40px; padding:40px 10px; ">
+<h3 style="line-height:40px;">{$welcome}</h3>
+这是WAP界面哦<br>
+{foreach item=w from=$who}
+{$w}<br>
+{/foreach}
+
+{$hook_indata}<br>
+{$hook_redata}<br>
+{$skins}
+</div>
+
+</body>
+
+</html>';
 file_put_contents("../themes/wap/index.html",$str);
-//生成跳转文件
-$str='{include file=\'header.html\'}
-<script language="javascript">
-function movenew()
-{
-	document.location=\'{$url}\';
-}
-setTimeout(movenew,2000);
-
-</script>
-<div class="well">
-{$message}，如果没有自动跳转请点击 <a href="{$url}">跳转</a>
-
-</div> 
-
-{include file=\'footer.html\'}';
-file_put_contents("../themes/admin/gomsg.html",$str);
-file_put_contents("../themes/index/gomsg.html",$str);
-file_put_contents("../themes/wap/gomsg.html",$str);
+file_put_contents("../module/test/themes/wap/index.html",$str);
+$str='<?php
+$config=array(
+	"title"=>"模块Test",//模块名称
+	"module"=>"test",//模块目录
+ 	"version"=>1.0,//当前版本
+	"info"=>"test",//模块信息
+	"table_pre"=>"sky_",//表前缀
+	"adminurl"=>"moduleadmin.php?m=test",
+	"check_update"=>"http://www.skymvc.com",
+);
+?>';
+file_put_contents("../module/test/config.php",$str);
 	
-	file_put_contents("install.lock","");
+file_put_contents("install.lock","");
 file_put_contents(".htaccess",'<FilesMatch "\.(bak|inc|lib|sh|tpl|lbi|dwt)$">
     order deny,allow
     deny from all
