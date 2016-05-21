@@ -2,7 +2,7 @@
 if(!defined("ROOT_PATH")){
 	define("ROOT_PATH",  str_replace("\\", "/", dirname(dirname(__FILE__)))."/");
 }
-
+define("SKYVERSION",4.0);
 //全局变量
 //sql执行语句
 $GLOBALS['skysqlrun']="";
@@ -14,7 +14,7 @@ $GLOBALS['query_time']=0;
 $GLOBALS['config_data']=array();
 // End;
 define("B_TIME",microtime(true));//页面开始时间 
-define("SKYVERSION",4.0);
+
 date_default_timezone_set('PRC');  //设置默认时区
 if(!defined("LANG")){
 	define("LANG",'chinese');	
@@ -304,6 +304,9 @@ if(function_exists("userinit"))
 if(method_exists($control,'onInit')){
 	$control->onInit();
 }
+if(AUTO_CHECK_BAD_WORD){
+	$control->checkBadWord();
+}
 $control->$method();
 
 
@@ -490,6 +493,7 @@ class skymvc
 		$a=get('a','h');
 		$m=$m?$m:"index";
 		$a=$a?$a:"default";
+		$m=str_replace(array("/","\\",".."),"",$m);
 		if(file_exists(HOOK_DIR."/".$m.".hook.php")){
 			require_once(HOOK_DIR."/".$m.".hook.php");
 			$class=$m."hook";

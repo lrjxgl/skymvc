@@ -22,6 +22,7 @@ if(!file_exists('install.lock'))
 	umkdir("../temp/html");//静态文件目录
 	umkdir("../temp/log");//静态文件目录
 	umkdir("../lang/chinese");//语言包
+	umkdir("../extends");//用户扩展
 	/****module******/
 	umkdir("../module/test/source/admin");
 	umkdir("../module/test/source/index");
@@ -33,8 +34,6 @@ if(!file_exists('install.lock'))
 	//生成配置文件
  
 	$str=' 
- 
-
 define("MYSQL_CHARSET","utf8");
 define("TABLE_PRE","sky_");
 /*
@@ -47,8 +46,6 @@ $dbconfig["master"]=array(
 $dbconfig["user"]=array(
 	"host"=>"localhost","user"=>"root","pwd"=>"123","database"=>"skyshop"
 );
-
-
 
 $dbconfig["article"]=array(
 	"host"=>"localhost","user"=>"root","pwd"=>"123","database"=>"skycms"
@@ -70,14 +67,16 @@ $cacheconfig=array(
 	"mysql"=>false,
 	"memcache"=>false
 );
+/*用户自定义函数文件*/
+$user_extends=array(
+	"ex_fun.php",
+);
 /*Session配置 1为自定义 0为系统默认*/
 define("SESSION_USER",0);
 define("REWRITE_ON",0); 
 define("REWRITE_TYPE","pathinfo");
 define("TESTMODEL",1);//开发测试模式
 define("HOOK_AUTO",false);//开放全局hook
-
- 
  ';
  file_put_contents("../config/config.php","<?php\r\n{$str}\r\n?>");
 
@@ -88,6 +87,8 @@ define("IMAGE_SITE","http://".$_SERVER[\'HTTP_HOST\']."/");
 define("APPINDEX","/index.php");
 define("APPADMIN","/admin.php");
 define("APPMODULE","/module.php");
+//检测敏感字符串
+define("AUTO_CHECK_BAD_WORD",false);
 define("OB_GZIP",false);
 //模板
 define("SKINS","index");
@@ -358,23 +359,24 @@ file_put_contents("../module/test/source/model/index.model.php",$str);
 //生成模板文件 index.html
 $str='<!DOCTYPE >
 <html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<title>这是PC版</title>
-</head>
+{include file="head.html"}
 <body>
-<div style="width:600px; text-align:center; margin: 0 auto; background-color:#C4E6A2; margin-top:100px; height:400px; line-height:40px; ">
-<h3 style="height:80px; line-height:80px;">{$welcome}</h3>
+{include file="header.html"}
+<div class="main-body">
+    <div style="width:600px; text-align:center; margin: 0 auto; background-color:#C4E6A2; margin-top:100px; height:400px; line-height:40px; ">
+     
+    
+    {foreach item=w from=$who}
+    {$w}<br>
+    {/foreach}
+    
+    {$hook_indata}<br>
+    {$hook_redata}<br>
+    {$skins}
+    </div>
 
-{foreach item=w from=$who}
-{$w}<br>
-{/foreach}
-
-{$hook_indata}<br>
-{$hook_redata}<br>
-{$skins}
 </div>
-
+{include file="footer.html"}
 </body>
 
 </html>';
@@ -384,29 +386,97 @@ file_put_contents("../module/test/themes/admin/index.html",$str);
 file_put_contents("../module/test/themes/index/index.html",$str);
 $str='<!DOCTYPE >
 <html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<title>这是手机版</title>
-</head>
-
+{include file="head.html"}
 <body>
-<div style=" text-align:center; margin: 0 auto; background-color:#C4E6A2; line-height:40px; padding:40px 10px; ">
-<h3 style="line-height:40px;">{$welcome}</h3>
-这是WAP界面哦<br>
-{foreach item=w from=$who}
-{$w}<br>
-{/foreach}
-
-{$hook_indata}<br>
-{$hook_redata}<br>
-{$skins}
+{include file="header.html"}
+<div class="main-body">
+    <div style=" text-align:center; margin: 0 auto; background-color:#C4E6A2; line-height:40px; padding:40px 10px; ">
+    这是WAP界面哦<br>
+    {foreach item=w from=$who}
+    {$w}<br>
+    {/foreach}
+    
+    {$hook_indata}<br>
+    {$hook_redata}<br>
+    {$skins}
+    </div>
 </div>
-
+{include file="footer.html"}
 </body>
 
 </html>';
 file_put_contents("../themes/wap/index.html",$str);
 file_put_contents("../module/test/themes/wap/index.html",$str);
+
+$str='<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>skymvc</title>
+<link href="/static/css/common.css" rel="stylesheet">
+</head>
+
+';
+file_put_contents("../themes/admin/head.html",$str);
+file_put_contents("../themes/index/head.html",$str);
+file_put_contents("../themes/wap/head.html",$str);
+file_put_contents("../module/test/themes/admin/head.html",$str);
+file_put_contents("../module/test/themes/index/head.html",$str);
+file_put_contents("../module/test/themes/wap/head.html",$str);
+
+$str='<div class="header">
+	{if $welcome}{$welcome}{else}这是头部{/if}
+</div>';
+file_put_contents("../themes/admin/header.html",$str);
+file_put_contents("../themes/index/header.html",$str);
+file_put_contents("../themes/wap/header.html",$str);
+file_put_contents("../module/test/themes/admin/header.html",$str);
+file_put_contents("../module/test/themes/index/header.html",$str);
+file_put_contents("../module/test/themes/wap/header.html",$str);
+
+$str='<div class="footer">
+这是尾部
+</div>';
+
+file_put_contents("../themes/admin/footer.html",$str);
+file_put_contents("../themes/index/footer.html",$str);
+file_put_contents("../themes/wap/footer.html",$str);
+file_put_contents("../module/test/themes/admin/footer.html",$str);
+file_put_contents("../module/test/themes/index/footer.html",$str);
+file_put_contents("../module/test/themes/wap/footer.html",$str);
+
+$str='<!DOCTYPE html>
+<html>
+{include file="head.html"}
+<script language="javascript">
+function movenew()
+{
+	document.location="{$url}";
+}
+setTimeout(movenew,2000);
+
+</script>
+<body>
+{include file="header.html"}
+<div class="main-body">	 
+    <div class="gomsg">{$message}，如果没有自动跳转请点击 <a href="{$url}">跳转</a></div>    
+</div>
+{include file="footer.html"}
+</body>
+</html>';
+file_put_contents("../themes/admin/gomsg.html",$str);
+file_put_contents("../themes/index/gomsg.html",$str);
+file_put_contents("../themes/wap/gomsg.html",$str);
+file_put_contents("../module/test/themes/admin/gomsg.html",$str);
+file_put_contents("../module/test/themes/index/gomsg.html",$str);
+file_put_contents("../module/test/themes/wap/gomsg.html",$str);
+$str='
+/* CSS Document */
+*{margin:0; padding:0px;}
+.gomsg{border:5px solid #ccc; border-radius:5px; padding:10px; margin:0 auto; max-width:600px; width:100%;}
+.header,.footer{margin:0 auto; max-width:960px; width:96%; border:1px solid #ccc;  line-height:40px; text-align:center; margin-bottom:10px;margin-top:10px} 
+';
+file_put_contents("../static/css/common.css",$str);
+
 $str='<?php
 $config=array(
 	"title"=>"模块Test",//模块名称
@@ -419,7 +489,13 @@ $config=array(
 );
 ?>';
 file_put_contents("../module/test/config.php",$str);
-	
+$str='<?php
+function myDiy($str){
+	echo myDiy();
+}
+ 
+?>';
+file_put_contents("../extends/ex_fun.php",$str);	
 file_put_contents("install.lock","");
 file_put_contents(".htaccess",'<FilesMatch "\.(bak|inc|lib|sh|tpl|lbi|dwt)$">
     order deny,allow
