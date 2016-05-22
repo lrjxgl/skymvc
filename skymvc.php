@@ -612,20 +612,59 @@ class skymvc
 	}
 	
 	public function set_cookie($key,$val,$expire,$path="/",$domain=""){
+		if(function_exists("set_cookie")){
+			set_cookie($key,$val,$expire,$path,$domain);
+		}
 		if(!$domain){
 			if(defined("COOKIE_DOMAIN") && COOKIE_DOMAIN!="" ){  
 				$domain=COOKIE_DOMAIN;
 			}else{
 				if(!$domain){
-					$domain=$_SERVER['HTTP_HOST'];
+					if(!defined("DOMAIN")){
+						$domain=$_SERVER['HTTP_HOST'];
+					}else{
+						$domain=DOMAIN;
+					}
 				}
 			}
 		}
-		setcookie($key,$val,$expire,"/",$domain);
+		 
+		setcookie($key,$val,time()+$expire,$path,$domain);
 	}
 	
 	public function get_cookie($key){
-		return $_COOKIE[$key];	
+		if(function_exists("get_cookie")){
+			return get_cookie($key);
+		}
+		if(isset($_COOKIE[$key])){
+			return $_COOKIE[$key];	
+		}
+		return false;
+	}
+	
+	public function set_session($key,$val){
+		if(function_exists("set_session")) {
+			return set_session($key,$val);
+		}
+		$_SESSION[$key]=$val;
+	}
+	
+	public function get_session($key){
+		if(function_exists("get_session")){
+			 return get_session($key);
+		}
+		if(isset($_SESSION[$key])){
+			return $_SESSION[$key];
+		}else{
+			return false;
+		}
+	}
+	
+	public function del_session($key){
+		if(function_exists("del_session")){
+			return del_session($key);
+		}
+		unset($_SESSION[$key]);
 	}
 	
 	/*MD5加密*/	
