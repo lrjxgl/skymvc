@@ -65,13 +65,16 @@ function makethumb($dstimg,$img,$dstw,$dsth=999,$all=false)
 
 $config=array(
 	"dstimg"=>"要打水印的图片",
-	"warterpos"=>"打水印的位置",
+	//打水印的位置 0随机 1左上 2中上 3右上 4左中 5中中 6右中 7左下 8中下 9右下 
+	 
+	"warterpos"=>0,
 	"img"=>"水印图片",
 	"str"=>"水印文字",
 	"size"=>文字大小,
 	"font"=>"字体文件",
 	"color"=>"文字颜色",
-	"show"=>0,//直接输出
+	"show"=>0,//0保存文件 1直接输出,
+	"type"=>1,//水印类型 1 文字 0图片
 )
 */
 function addwater($config)

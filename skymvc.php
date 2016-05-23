@@ -616,19 +616,8 @@ class skymvc
 			set_cookie($key,$val,$expire,$path,$domain);
 		}
 		if(!$domain){
-			if(defined("COOKIE_DOMAIN") && COOKIE_DOMAIN!="" ){  
-				$domain=COOKIE_DOMAIN;
-			}else{
-				if(!$domain){
-					if(!defined("DOMAIN")){
-						$domain=$_SERVER['HTTP_HOST'];
-					}else{
-						$domain=DOMAIN;
-					}
-				}
-			}
-		}
-		 
+			$domain=COOKIE_DOMAIN;
+		}		 
 		setcookie($key,$val,time()+$expire,$path,$domain);
 	}
 	
@@ -649,12 +638,19 @@ class skymvc
 		$_SESSION[$key]=$val;
 	}
 	
-	public function get_session($key){
+	public function get_session($key,$field=false){
 		if(function_exists("get_session")){
 			 return get_session($key);
 		}
 		if(isset($_SESSION[$key])){
-			return $_SESSION[$key];
+			if($field){
+				if(isset($_SESSION[$key][$field])){
+					return $_SESSION[$key][$field];
+				}
+				return false;
+			}else{
+				return $_SESSION[$key];
+			}
 		}else{
 			return false;
 		}

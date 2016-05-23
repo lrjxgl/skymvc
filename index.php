@@ -94,7 +94,9 @@ define("OB_GZIP",false);
 define("SKINS","index");
 //模板
 define("WAPSKINS","wap");
-define("WAP_DOMAIN","wap.com");
+define("WAP_DOMAIN","");
+define("DOMAIN",$_SERVER[\'HTTP_HOST\']);
+define("COOKIE_DOMAIN",$_SERVER[\'HTTP_HOST\']);
 ?>';
 file_put_contents("../config/const.php",$str);
 

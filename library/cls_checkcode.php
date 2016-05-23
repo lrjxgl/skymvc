@@ -12,7 +12,12 @@ class checkcode
 		for($i=0;$i <$len;$i++){
 			$str.=$srcstr[mt_rand(0,$ct)];
 		}
-		$_SESSION['checkcode']=$str;
+		
+		if(function_exists("c")){
+			C()->set_session('checkcode',$str);
+		}else{
+			$_SESSION['checkcode']=$str;
+		}
 		return $str;
 	}
 	
@@ -40,16 +45,21 @@ class checkcode
 		switch($r){
 			case 1:
 					$str="{$a} {$e} {$b}=?";
-					$_SESSION['checkcode']=$c; 
+					$answer=$c; 
 				break;
 			case 2:
 					$str="{$a} {$e}?={$c}";
-					$_SESSION['checkcode']=$b;
+					$answer=$b;
 					break;
 			default:
 					$str="? {$e} {$b}={$c}";
-					$_SESSION['checkcode']=$a;
+					$answer=$a;
 				break;			
+		}
+		if(function_exists("c")){
+			C()->set_session('checkcode',$answer);
+		}else{
+			$_SESSION['checkcode']=$answer;
 		}
 		return $str;
 	}

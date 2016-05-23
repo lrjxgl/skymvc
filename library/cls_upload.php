@@ -4,7 +4,7 @@ if(!defined("ROOT_PATH")){
 }
 class upload{
 	public $allowtype=array("gif","jpg","bmp","png",'jpeg');//允许上传的文件类型
-	public $sysallowtype=array('gif','jpg','bmp','png','jpeg','txt','mpeg','avi','rm','rmvb','wmv','flv','mp3','wav','wma','swf','doc','pdf','zip','tar');
+	public $sysallowtype=array('gif','jpg','bmp','png','jpeg','txt','mpeg','avi','rm','rmvb','wmv','flv','mp3','wav','wma','swf','doc','pdf','zip','tar','svg');
 	//系统默认允许上传
 	//上传文件夹
 	public $uploaddir="attach/uploads/";
@@ -22,6 +22,7 @@ class upload{
 	function uploadfile($file)
 	{
 		$FILE=$_FILES[$file];
+		
 		//判断文件大小是否符合要求
 		if($FILE['size'] > $this->maxsize or $FILE['size']==0) {
 			@unlink($FILE['tmp_name']);
@@ -43,7 +44,7 @@ class upload{
 		$f= md5(time().$FILE['name']);
 		$uploadfile=$uploaddir.$f.".$f_type";
 	
-		 //$this->slog($FILE['name']." ".$bname .$uploadfile);
+		  
 		if($this->upimg==true)
 		{			
 			$fs=getimagesize($FILE['tmp_name']);
@@ -52,18 +53,20 @@ class upload{
 				@unlink($FILE['tmp_name']);
 				return  array("err"=>'图像必须大于5像素','filename'=>'');
 			}else{
-				return $this->move_file($FILE['tmp_name'],$uploadfile);
+				return $this->move_file($FILE['tmp_name'],$uploadfile,$FILE['name'],$FILE['type'],$FILE['size']);
 			}
 		}
 		
 		$filetype=$this->getMime($FILE['tmp_name'],$FILE['type']);	
 		$filetype=strtolower($this->getfiletype($filetype));//真实的文件后缀
+		
 		if($f_type!=$filetype)
 		{
 			if(!in_array($filetype,array('jpeg','gif','jpg','png','bmp',"flv")))
 			{
 				return array('err'=>"文件后缀{$f_type}与真实文件类型{$filetype}不一致,如果php>5.3请开启fileinfo",'filename'=>'');
 			}elseif(!$this->safecheck){
+				
 				return $this->move_file($FILE['tmp_name'],$uploadfile,$FILE['name'].$filetype);
 			}
 		}
@@ -73,6 +76,7 @@ class upload{
 			@unlink($FILE['tmp_name']);
 			return array('err'=>$f_type.'文件类型不允许','filename'=>'');
 		}
+		
 		return $this->move_file($FILE['tmp_name'],$uploadfile,$FILE['name'],$FILE['type'],$FILE['size']);
 		 
 		
@@ -82,11 +86,11 @@ class upload{
 		if(move_uploaded_file($from,$to))
 		{
 			@unlink($from);
-			return array('err'=>'','filename'=>$to,"original"=>$original,"type"=>$type,"size"=>$size);		
+			return array('err'=>0,'filename'=>$to,"original"=>$original,"type"=>$type,"size"=>$size);		
 		}else
 		{
 			@unlink($from);
-			return array('err'=>'上传失败，请检查文件夹是否有写入权限','filename'=>'');			
+			return array('err'=>$original.'上传失败，请检查文件夹是否有写入权限','filename'=>'');			
 		}
 	}
 	
@@ -161,6 +165,8 @@ class upload{
 			case "audio/ogg":
 				return 'ogg';
 			default:
+			case "image/svg+xml":
+				return "svg";
 			return $ftype;
 		}
 	}
@@ -188,13 +194,6 @@ class upload{
 		return (($id/1000000)%100)."/".(($id/10000)%100)."/".(($id/100)%100)."/".($id%100)."/".$id."/";
 	}
 	
-	function slog($c,$file="log.txt"){
-		if(file_exists($file)){
-			$c2=file_get_contents($file);
-			file_put_contents($file,$c."\r\n".$c2);
-		}else{
-			file_put_contents($file,$c);
-		}
-	}
+	 
 }
 ?>
