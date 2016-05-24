@@ -1,11 +1,12 @@
 <?php
+
 /*
 * Author 雷日锦 QQ:362606856
 * 
 */
-/*
-for($i=0;$i<10;$i++){
-	$urls[]="http://www.qq.com/";
+ /*
+for($i=0;$i<2;$i++){
+	$urls[]="http://mil.qq.com/";
 }
    
  $sp=new Spider();
@@ -16,7 +17,7 @@ for($i=0;$i<10;$i++){
  echo "访问时间：".(microtime(true)-$st);
  //$data=$sp->redata;
  //print_r($data);
-*/
+ */
 class Spider{
 	public $mh;
 	public $urls;
@@ -37,6 +38,7 @@ class Spider{
 		  curl_setopt($this->conn[$i], CURLOPT_HEADER ,0);   
 		  curl_setopt($this->conn[$i], CURLOPT_CONNECTTIMEOUT,60);   
 		  curl_setopt($this->conn[$i],CURLOPT_RETURNTRANSFER,true); 
+		  curl_setopt($this->conn[$i], CURLOPT_FOLLOWLOCATION, true);
 		  curl_multi_add_handle ($this->mh,$this->conn[$i]);   
 		}
 		$active = false;

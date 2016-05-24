@@ -36,29 +36,7 @@ function ip2latlng($ip=""){
 	return $d['content'];
 }
 
-/**
-*
-{"code":0,"data":{"ip":"210.75.225.254","country":"\u4e2d\u56fd","area":"\u534e\u5317",
-"region":"\u5317\u4eac\u5e02","city":"\u5317\u4eac\u5e02","county":"","isp":"\u7535\u4fe1",
-"country_id":"86","area_id":"100000","region_id":"110000","city_id":"110000",
-"county_id":"-1","isp_id":"100017"}}
-其中code的值的含义为，0：成功，1：失败。
-*
-*/
-
-function ipCity($ip,$type=0){
-	$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
-	$d=json_decode($c,true);
-	if($d['code']==0 && !empty($d['data']['city_id'])){
-		if($type==0){
-			return $d['data'];
-		}else{
-			return $d['data']['region'].$d['data']['city'].$d['data']['county'];
-		}
-	}else{
-		return false;
-	}
-}
+ 
 
 /*获取两个gps之间的距离*/
 function distanceByLnglat($lng1,$lat1,$lng2,$lat2)

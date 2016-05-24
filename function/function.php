@@ -437,7 +437,33 @@ function realip() {
 	return $onlineip;
 }
 
-
+/**
+*
+{"code":0,"data":{"ip":"210.75.225.254","country":"\u4e2d\u56fd","area":"\u534e\u5317",
+"region":"\u5317\u4eac\u5e02","city":"\u5317\u4eac\u5e02","county":"","isp":"\u7535\u4fe1",
+"country_id":"86","area_id":"100000","region_id":"110000","city_id":"110000",
+"county_id":"-1","isp_id":"100017"}}
+其中code的值的含义为，0：成功，1：失败。
+*
+*/
+function ipCity($ip,$type=0){
+	$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
+	$key="ip".$type."_".str_replace(".","_",$ip);
+	if($data=cache()->get($key)) return $data;
+	$d=json_decode($c,true);
+	if($d['code']==0 && !empty($d['data']['city_id'])){
+		if($type==0){
+			cache()->set($key,$d['data'],3600);
+			return $d['data'];
+		}else{
+			$data=$d['data']['region'].$d['data']['city'].$d['data']['county'];
+			cache()->set($key,$data,3600);
+			return $data;
+		}
+	}else{
+		return false;
+	}
+}
 
 
 /*获取远程内容*/
@@ -604,6 +630,44 @@ function jiemi($str){
 	return $nstr;
 } 
 
+/***获取一及域名***/
+ function getBaseDomain($host){
+		$com=array(
+			".com.cn",
+			".net.cn",
+			".org.cn",
+			".gov.cn",
+			".com",
+			".net",
+			".cn",		
+			".org",	
+			".me",
+			".co",
+			".tv",
+			".cc"	
+		);
+		$arr=$farr=explode(".",$host);
+		$len=count($farr);
+		//获取最后两个
+		if($len>2){
+			$dm2=".".$arr[$len-2].".".$arr[$len-1];
+			$key=array_search($dm2,$com); 
+			if($key!==false){
+				 $cm=$dm2;
+				
+			}else{
+				$cm=".".$arr[$len-1];
+			}
+			 
+		}else{
+			$cm=".".$arr[$len-1];
+		}
+		
+		$s=str_replace($cm,"",$host);
+		$arr=explode(".",$s);
+		$s=array_pop($arr);
+		return $s.$cm;
+	}
 
 /*剩余时间*/
 function lefttime($endtime,$format="还剩#天#小时#分#秒",$ec=0){
