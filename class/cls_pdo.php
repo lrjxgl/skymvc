@@ -73,7 +73,7 @@ class mysql
 	 public function query($sql){
 		 
 		if($this->testmodel){
-			$s=microtime(true);
+			
 			$GLOBALS['skysqlrun'] .="<br>".$sql;
 			$GLOBALS['skysqlnum'] ++;
 		}
@@ -81,10 +81,19 @@ class mysql
 		if(!$this->db){
 			$this->connect();
 		}
+		$st=microtime(true);
 	 	$this->query=$rs = $this->db->prepare($sql);
 		$rs->execute();
+		 
+		if(SQL_SLOW_LOG==1){
+			if($qt=microtime(true)-$st>0.7){
+				if(strpos($sql,"select")!==false){
+					skylog("sqlslow.txt","执行时间:".$qt."秒  ".$sql); 
+				}
+			}
+		}
 		if($this->testmodel){
-			$GLOBALS['query_time']+=microtime(true)-$s;
+			$GLOBALS['query_time']+=microtime(true)-$st;
 		}
 		if($this->errno() >0 ){
 			$e=$this->error();

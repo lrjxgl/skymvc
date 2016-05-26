@@ -28,13 +28,30 @@ function skyTest(){
 	echo "SQL执行次数:".G('skysqlnum')."<br>";	
 	echo "SQl执行语句：".G('skysqlrun')."<br>";
 }
+/**页面测试记录时间**/
+function skymvc_test_page_auto(){
+	if(isset($_GET['skymvc_test_page_auto'])){
+		$t=microtime(true)-B_TIME;
+		skyLog("test_page.txt","当前页面花费时间：".$t."秒");
+	}
+}
+
 /**系统日志**/
 function skyLog($file,$content){
 	$file=ROOT_PATH."temp/log/".$file;
+	if(file_exists($file)){
+		if(filesize($file)>1024*1024*300){
+			rename($file,ROOT_PATH."temp/log/".str_replace(".",date("Ymdhis").".",basename($file)));
+		}
+		clearstatcache() ;
+	}
+	
 	$fp=fopen($file,"a+");
-	fwrite($fp,"\r\n---".date("Y-m-d H:i:s")."----\r\n".$content."\r\n");
+	
+	fwrite($fp,"\r\n---".date("Y-m-d H:i:s")."--".$_SERVER['REQUEST_URI']."--\r\n".$content."\r\n");
 	fclose($fp);	
 }
+
 
 /*
 构造表格前缀 函数

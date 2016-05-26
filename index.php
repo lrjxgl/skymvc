@@ -76,7 +76,7 @@ define("SESSION_USER",0);
 define("REWRITE_ON",0); 
 define("REWRITE_TYPE","pathinfo");
 define("TESTMODEL",1);//开发测试模式
-define("HOOK_AUTO",false);//开放全局hook
+define("SQL_SLOW_LOG",1);//记录慢查询
  ';
  file_put_contents("../config/config.php","<?php\r\n{$str}\r\n?>");
 

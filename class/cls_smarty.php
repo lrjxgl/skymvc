@@ -49,6 +49,7 @@ class Smarty
 	public function goAssign($tpl_var, $value = ''){
 		
 		if(get('ajax')){
+			skymvc_test_page_auto();
 			C()->goALL("success",0,$tpl_var);
 		}else{
 			$this->assign($tpl_var,$value);
@@ -250,6 +251,7 @@ class Smarty
         {
             error_reporting($this->_errorlevel);
         }
+		skymvc_test_page_auto();
         return $out; // 返回html数据
     }
 
