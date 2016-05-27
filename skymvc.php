@@ -372,11 +372,13 @@ class skymvc
 		$this->smarty->cache_dir=S_CACHE_DIR;
 		$this->smarty->html_dir=S_HTML_DIR;
 		$this->smarty->compile_dir=S_COMPILE_DIR;
+		 
 		if(defined("TESTMODEL") && TESTMODEL==1){
-			$this->smarty->direct_output= true;
+			$this->smarty->force_compile= true;
 		}else{
-			$this->smarty->direct_output= false;
+			$this->smarty->force_compile= false;
 		}
+		 
 		$this->smarty->assign("skins","/".(ISWAP?S_WAP_TEMPLATE_DIR:S_TEMPLATE_DIR )."/");
 		$this->smarty->assign("lang",$this->lang);
 	}
