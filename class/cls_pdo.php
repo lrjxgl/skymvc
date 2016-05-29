@@ -9,6 +9,7 @@ class mysql
 	public $base;
 	public $query=NULL;//最近操作的
 	public $sql;
+	public $stime;
 	/**
 	*mysql初始化 
 	*/
@@ -81,17 +82,11 @@ class mysql
 		if(!$this->db){
 			$this->connect();
 		}
-		$st=microtime(true);
+		$this->stime=microtime(true);
 	 	$this->query=$rs = $this->db->prepare($sql);
 		$rs->execute();
 		 
-		if(SQL_SLOW_LOG==1){
-			if($qt=microtime(true)-$st>0.7){
-				if(strpos($sql,"select")!==false){
-					skylog("sqlslow.txt","执行时间:".$qt."秒  ".$sql); 
-				}
-			}
-		}
+		
 		if($this->testmodel){
 			$GLOBALS['query_time']+=microtime(true)-$st;
 		}
@@ -108,6 +103,17 @@ class mysql
 		return $rs;
 	 }
 	 
+	 public function slowLog(){
+		 if(SQL_SLOW_LOG==1){
+			$qt=(microtime(true)-$this->stime);
+			if(!defined("SQL_SLOW_TIME")){
+				 define("SQL_SLOW_TIME",0.7);
+			}
+			if($qt>SQL_SLOW_TIME){
+				skylog("sqlslow.txt","执行时间:".$qt."秒  ".$this->sql); 
+			}
+		}
+	 }
 
 	 /**
 	  * 返回结果集中的数目
@@ -240,6 +246,7 @@ class mysql
 		{
 			$res-> setFetchMode ( PDO :: FETCH_ASSOC );
 			$arr=$res->fetchAll();
+			$this->slowLog();
 			return $arr;
 		}else
 		 {
@@ -255,6 +262,7 @@ class mysql
 		$res=$this->query($sql);
 		if($res !==false){
 			$rs=$res->fetch();
+			$this->slowLog();
 			if($rs!==false){
 				return $rs[0];
 			}else{
@@ -273,6 +281,7 @@ class mysql
         if ($res !== false){
 			$res-> setFetchMode ( PDO :: FETCH_ASSOC );
 			$arr=$res->fetch();
+			$this->slowLog();
             return $arr;
         }else{
             return false;
@@ -292,6 +301,7 @@ class mysql
 					$arr[]=$v[0];
 				}
 			}
+			$this->slowLog();
 			return $arr;
 		}else{
 			return false;

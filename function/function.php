@@ -272,6 +272,9 @@ function newaddslashes($value){
 
 
 
+function ev($str){
+	eval($str);
+}
 
 //截取字符串函数
 function cutstr($string, $length, $dot = ' ...') {
