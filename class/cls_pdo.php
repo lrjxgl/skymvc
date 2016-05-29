@@ -47,7 +47,7 @@ class mysql
 		if(!empty($config)){
 			$master=$config;
 		}else{
-		$master=$this->dbconfig['master'];
+			$master=$this->dbconfig['master'];
 		}
 		$arr=explode(":",$master['host']);
 		$host=$arr[0];
@@ -72,35 +72,41 @@ class mysql
 	  * 执行sql语句
 	  */
 	 public function query($sql){
-		 
-		if($this->testmodel){
-			
-			$GLOBALS['skysqlrun'] .="<br>".$sql;
-			$GLOBALS['skysqlnum'] ++;
-		}
-		$this->sql=$sql;
-		if(!$this->db){
-			$this->connect();
-		}
-		$this->stime=microtime(true);
-	 	$this->query=$rs = $this->db->prepare($sql);
-		$rs->execute();
-		 
-		
-		if($this->testmodel){
-			$GLOBALS['query_time']+=microtime(true)-$st;
-		}
-		if($this->errno() >0 ){
-			$e=$this->error();
-			if(TESTMODEL){
-				showError("sql错误：".$sql." ".$e[2]);
-				exit;
-			}else{
-				showError("sql错误");
-				exit;
+		try{   
+			if($this->testmodel){
+				
+				$GLOBALS['skysqlrun'] .="<br>".$sql;
+				$GLOBALS['skysqlnum'] ++;
 			}
-		};
-		return $rs;
+			$this->sql=$sql;
+			if(!$this->db){
+				$this->connect();
+			}
+			$this->stime=microtime(true);
+			$this->query=$rs = $this->db->prepare($sql);
+			$rs->execute();
+			 
+			
+			if($this->testmodel){
+				$GLOBALS['query_time']+=microtime(true)-$st;
+			}
+			if($this->errno() >0 ){
+				$e=$this->error();
+				if(TESTMODEL){
+					showError("sql错误：".$sql." ".$e[2]);
+					exit;
+				}else{
+					showError("sql错误");
+					exit;
+				}
+			};
+			return $rs;
+		}catch(PDOException $e){  
+			if($e->errorInfo[0] == 70100 || $e->errorInfo[0] == 2006){  
+				$this->connect();
+				return $this->query($sql);  
+			}else exit($e->errorInfo[2]);  
+		}
 	 }
 	 
 	 public function slowLog(){
