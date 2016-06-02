@@ -604,8 +604,9 @@ if(!defined("JIAMI_MIYAO")){
 	define("JIAMI_MIYAO","我要保密");
 }
 /*加密*/
-function jiami($str){
-	$code=md5(JIAMI_MIYAO);
+function jiami($str,$miyao=""){
+	$miyao=$miyao?$miyao:JIAMI_MIYAO;
+	$code=md5($miyao);
 	$a=0;
 	for($i=0;$i<6;$i++){
 		$a+=ord($code{$i});
@@ -626,9 +627,8 @@ function jiami($str){
 	return base64_encode(urlencode($nstr));
 }
 /******解密******/
-function jiemi($str){
-	
-	$code=md5(JIAMI_MIYAO);
+function jiemi($str,$miyao=''){
+	$miyao=$miyao?$miyao:JIAMI_MIYAO;
 	$a=0;
 	for($i=0;$i<6;$i++){
 		$a+=ord($code{$i});
