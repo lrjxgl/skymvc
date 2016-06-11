@@ -213,13 +213,16 @@ class model{
 		$table=$this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table);
 		return $this->db->getAll("show columns from ".TABLE_PRE.$table."");
 	}
-	public function postData(){
+	public function postData($un=array()){
 		$table=$this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table);
 		$fields=$this->getFields();
 		if($fields){
 			foreach($fields as $k=>$v){
 				//if($k==0) continue;
 				if(isset($_POST[$v['Field']])){
+					if(in_array($v['Field'],$un)){
+						continue;
+					}
 					$format="h";
 					$len=0;
 					if(preg_match("/int/i",$v['Type'])){
@@ -246,7 +249,7 @@ class model{
 	}
 	/*关闭数据库*/
 	public function close(){
-		//$this->db->close();
+		$this->db->close();
 	}
 	
 	

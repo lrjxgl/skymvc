@@ -150,19 +150,18 @@ function M($model,&$base=NULL){
 }
 /*加载模块的模型*/
 function MM($module,$model,&$base=NULL){
-	if(isset($GLOBALS[$model.'Model'])){
+	if(isset($GLOBALS[$model.'MModel'])){
 	 
-		return $GLOBALS[$model.'Model'];
+		return $GLOBALS[$model.'MModel'];
 	}else{
 		if(file_exists(ROOT_PATH."module/".$module."/source/model/$model.model.php")){		
 			require_once    ROOT_PATH."module/".$module."/source/model/$model.model.php";
 			$_model="{$model}Model";
-			 	
 			$m=new $_model($base);
 			$m->setDb($model);
 			 
-			$GLOBALS[$model.'Model']=$m;		 
-			return $GLOBALS[$model.'Model'];
+			$GLOBALS[$model.'MModel']=$m;		 
+			return $GLOBALS[$model.'MModel'];
 		}else{
 			//controler  model调用
 			$_model="{$model}Model";
@@ -170,9 +169,9 @@ function MM($module,$model,&$base=NULL){
 			$m=new model($base);
 			$m->setDb($model);
 			$m->table=$model;			
-			$GLOBALS[$model.'Model']=$m;
+			$GLOBALS[$model.'MModel']=$m;
 			 		 
-			return $GLOBALS[$model.'Model'];
+			return $GLOBALS[$model.'MModel'];
 		}
 	}
 }
@@ -304,7 +303,7 @@ if(function_exists("userinit"))
 if(method_exists($control,'onInit')){
 	$control->onInit();
 }
-if(AUTO_CHECK_BAD_WORD){
+if(AUTO_CHECK_BAD_WORD==1){
 	$control->checkBadWord();
 }
 $control->$method();
