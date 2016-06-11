@@ -360,8 +360,11 @@ class skymvc
 	
 	public function initsmarty()
 	{
-		
-		include_once "class/cls_smarty.php";
+		if(defined("SMARTYPHP") && SMARTYPHP=="php" ){
+			include_once "class/cls_smarty_php.php";
+		}else{
+			include_once "class/cls_smarty.php";
+		}
 		$this->smarty=new Smarty();
 		if(ISWAP){
 			$this->smarty->template_dir   =S_WAP_TEMPLATE_DIR;
