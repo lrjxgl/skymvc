@@ -629,6 +629,7 @@ function jiami($str,$miyao=""){
 /******解密******/
 function jiemi($str,$miyao=''){
 	$miyao=$miyao?$miyao:JIAMI_MIYAO;
+	$code=md5($miyao);
 	$a=0;
 	for($i=0;$i<6;$i++){
 		$a+=ord($code{$i});
