@@ -1,11 +1,11 @@
 skymvc是一款轻量、简单的php mvc框架，采用数据持久化，支持主从数据库，支持多数据库连接，支持分布式，采用类smarty模板引擎等应用技术，组件式结构，扩展容易。非严格mvc ，模板 里强大的 {get} 和 {api} 方法，数据调用方便，作为一个程序员希望有自己的开发 简单高效的框架，支持多模板及APP的api技术，轻松开发PC\wap\app。
 
-4.1 更新说明
+官网：http://www.skymvc.com
+4.2 更新说明
 
-1.增加session cookie 操作方法自定义
-2.优化cls_image.php cls_checkcode
-3.优化hook机制
-4.修复cls_upload.php  
-5.增加spider蜘蛛类库
-6.优化solink类库
-
+1.增加php原生模板
+2.优化pdo数据库连接
+3.数据保存 M()->postData($un) 添加忽略字段
+4.jiami jiemi加解密优化
+5.增加页面测试、日志分割
+6.优化类smarty模板
