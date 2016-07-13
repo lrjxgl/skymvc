@@ -48,7 +48,7 @@ class smarty{
 				$out=shouQuanTpl($out);
 		}
 		if($this->html_file){
-			$this->umkdir(dirname($this->html_file));		
+			umkdir(dirname($this->html_file));		
 			file_put_contents($this->html_file,$out);
 		}
 		echo $out; 		
@@ -56,7 +56,13 @@ class smarty{
 	
 	public function html($htmlfile,$expire=3600){
 		$file=$this->html_dir."/".$htmlfile;
-		$this->html_file=$file;
+		$filestat = @stat($filename);
+		if(file_exists($file) && !isset($_GET['forceHtml']) && $filestat['mtime']>time()-$expire){
+			return false;
+		}else{
+			$this->html_file=$file;
+		}
+		 
 	}
 	
 	public function fetchhtml($str){
@@ -77,9 +83,7 @@ class smarty{
 		return true;
 	}
 	
-	public function umkdir($dir){
-		mkdir($dir,0777,true);
-	}
+	 
 	
 	
 	

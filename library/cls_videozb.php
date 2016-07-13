@@ -11,8 +11,8 @@ print_r($data);
 if(!function_exists("videozb")){
 	function videozb(){
 		if(!isset($GLOBALS['videozhiboclass'])){
-			$appkey="db2c5ae961d0403abcdd512a29a494d5";
-			$AppSecret="0a7fe572b6dc492baa57fb660d4c1c3f";
+			$appkey="db2c5ae9";
+			$AppSecret="0a7fe57";
 			$GLOBALS['videozhiboclass']=new v163Class($appkey,$AppSecret);
 		}
 		return $GLOBALS['videozhiboclass'];
