@@ -39,6 +39,7 @@ function skymvc_test_page_auto(){
 /**系统日志**/
 function skyLog($file,$content){
 	$file=ROOT_PATH."temp/log/".$file;
+	umkdir(ROOT_PATH."temp/log/");
 	if(file_exists($file)){
 		if(filesize($file)>1024*1024*300){
 			rename($file,ROOT_PATH."temp/log/".str_replace(".",date("Ymdhis").".",basename($file)));
@@ -426,7 +427,13 @@ function sky_json_encode($data){
 function sky_json_decode($data){
 	return json_decode($data,true);
 }
-
+/**数组 字符串转换***/
+function arr2str($arr){
+	return urlencode(base64_encode(json_encode($arr)));
+}
+function str2arr($str){
+	return json_decode(base64_decode(urldecode($str)));
+}
 /**
 *@简易字符串转js
 */
@@ -467,17 +474,18 @@ function realip() {
 *
 */
 function ipCity($ip,$type=0){
-	$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
+	if($ip=="127.0.0.1") return false;
 	$key="ip".$type."_".str_replace(".","_",$ip);
 	if($data=cache()->get($key)) return $data;
+	$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
 	$d=json_decode($c,true);
 	if($d['code']==0 && !empty($d['data']['city_id'])){
 		if($type==0){
-			cache()->set($key,$d['data'],3600);
+			cache()->set($key,$d['data'],3600000);
 			return $d['data'];
 		}else{
 			$data=$d['data']['region'].$d['data']['city'].$d['data']['county'];
-			cache()->set($key,$data,3600);
+			cache()->set($key,$data,3600000);
 			return $data;
 		}
 	}else{

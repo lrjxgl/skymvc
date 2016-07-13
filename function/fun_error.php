@@ -35,7 +35,7 @@ function my_error_handler($errno=NULL, $errstr=NULL, $errfile=NULL, $errline=NUL
 	</style>';
 	
 	$html="<div class='debug-list'><h1  style='color:red'>错误提示</h1><div class='item'>系统：PHP " . PHP_VERSION . " (" . PHP_OS . ")</div>\n";
-    
+    skyLog("error.txt","<div class='item'>错误类型：WARNING<br> 内容：$errstr  错误位置：$errfile 行：$errline </div>");
     switch ($errno) {
      
 	

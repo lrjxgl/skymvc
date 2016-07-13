@@ -47,16 +47,20 @@ class smarty{
 		if(function_exists("shouQuanTpl")){
 				$out=shouQuanTpl($out);
 		}
+		if($this->html_file){
+			$this->umkdir(dirname($this->html_file));		
+			file_put_contents($this->html_file,$out);
+		}
 		echo $out; 		
 	}
 	
 	public function html($htmlfile,$expire=3600){
 		$file=$this->html_dir."/".$htmlfile;
-		if(file_exists($file) && !isset($_GET['forceHtml'])){
-			return false;
-		}else{
-			$this->html_file=$file;
-		}
+		$this->html_file=$file;
+	}
+	
+	public function fetchhtml($str){
+		return $str; 
 	}
 	
 	public function fetch($filename, $cache_id = '',$dir=""){
@@ -71,6 +75,10 @@ class smarty{
 	
 	public function is_cached($filename, $cache_id = ''){
 		return true;
+	}
+	
+	public function umkdir($dir){
+		mkdir($dir,0777,true);
 	}
 	
 	
