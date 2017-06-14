@@ -230,7 +230,7 @@ class model{
 						$format="x";
 					}elseif(preg_match("/decimal/i",$v['Type'])){
 						$format="r";
-						$len=2;
+						$len=6;
 					}
 					if($v['Field']=='starttime' or $v['Field']=='endtime'){
 						$data[$v['Field']]=strtotime(post($v['Field']));

@@ -4,7 +4,7 @@ if(!defined("ROOT_PATH")){
 }
 class upload{
 	public $allowtype=array("gif","jpg","bmp","png",'jpeg');//允许上传的文件类型
-	public $sysallowtype=array('gif','jpg','bmp','png','jpeg','txt','mpeg','avi','rm','rmvb','wmv','flv','mp3','wav','wma','swf','doc','pdf','zip','tar','svg');
+	public $sysallowtype=array('gif','jpg','bmp','png','jpeg','txt','mpeg',"mp4","ogg",'avi','rm','rmvb','wmv','flv','mp3','wav','wma','swf','doc','pdf','zip','tar','svg');
 	//系统默认允许上传
 	//上传文件夹
 	public $uploaddir="attach/uploads/";
@@ -22,7 +22,7 @@ class upload{
 	function uploadfile($file)
 	{
 		$FILE=$_FILES[$file];
-		
+		 
 		//判断文件大小是否符合要求
 		if($FILE['size'] > $this->maxsize or $FILE['size']==0) {
 			@unlink($FILE['tmp_name']);
@@ -86,7 +86,7 @@ class upload{
 		if(move_uploaded_file($from,$to))
 		{
 			@unlink($from);
-			return array('err'=>0,'filename'=>$to,"original"=>$original,"type"=>$type,"size"=>$size);		
+			return array('err'=>0,'filename'=>$to,"original"=>$original,"type"=>$type,"size"=>round($size/1048576,2));		
 		}else
 		{
 			@unlink($from);
@@ -164,9 +164,12 @@ class upload{
 				return 'tar';
 			case "audio/ogg":
 				return 'ogg';
-			default:
+			
 			case "image/svg+xml":
 				return "svg";
+			case "video/mp4":
+				return "mp4";
+			default:	
 			return $ftype;
 		}
 	}

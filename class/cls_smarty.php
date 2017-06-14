@@ -32,6 +32,8 @@ class Smarty
     public $_temp_key      = array();  // 临时存放 foreach 里 key 的数组
     public $_temp_val      = array();  // 临时存放 foreach 里 item 的数组
 	public $htm_lfile="";
+	public $_vars;
+	public $dir;
 
    public function __construct()
     {
@@ -99,9 +101,7 @@ class Smarty
     public function display($filename, $cache_id = '')
     {
 		$_GET=get_post_Html($_GET); 
-        if(get_post('jsonp')){
-			c()->goAll("success",0,$this->_var);
-		}
+        
 		$this->_seterror++;
         error_reporting(E_ALL ^ E_NOTICE);
 		
@@ -300,6 +300,10 @@ class Smarty
         if ($this->force_compile || $filestat['mtime'] > $expires)
         {
             $this->_current_file = $filename;
+			if(!file_exists($filename)){
+            	echo "模板".$filename."不存在";
+            	return false;
+            }
             $source = $this->fetch_str(file_get_contents($filename));
 			
             if (file_put_contents($name, $source, LOCK_EX) === false)

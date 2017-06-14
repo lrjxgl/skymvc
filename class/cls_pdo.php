@@ -183,7 +183,7 @@ class mysql
 	*/
 	public function SELECT($table,$data=array(),&$rscount=false){		
 		$start=isset($data['start'])?$data['start']:0;
-		$pagesize=isset($data['limit'])?$data['limit']:1000;
+		$pagesize=isset($data['limit'])?$data['limit']:1000000;
 		$fields=isset($data['fields'])?$data['fields']:" * ";
 		$where=(!isset($data['where']) or empty($data['where']))?"":" where ".$this->compile_array($data['where']," AND ");
 		$order=isset($data['order']) && !empty($data['order'])?" ORDER BY ".$data['order']:"";
@@ -223,7 +223,7 @@ class mysql
 	*/	
 	public function selectCols($table,$data=array(),&$rscount=false){
 		$start=isset($data['start'])?$data['start']:0;
-		$pagesize=isset($data['limit'])?$data['limit']:1000;
+		$pagesize=isset($data['limit'])?$data['limit']:1000000;
 		$fields=isset($data['fields'])?$data['fields']:" * ";
 		$where=(!isset($data['where']) or empty($data['where']))?"":" where ".$this->compile_array($data['where']," AND ");
 		$order=isset($data['order']) && !empty($data['order'])?" ORDER BY ".$data['order']:"";

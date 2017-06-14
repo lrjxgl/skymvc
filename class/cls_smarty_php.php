@@ -1,4 +1,5 @@
 <?php
+	
 class smarty{
 	
 	public $template_dir   = '';//模版文件夹
@@ -41,7 +42,7 @@ class smarty{
         }
     }
 	public function display($filename, $cache_id = ''){
-		 
+		  
 		$out = $this->fetch($filename, $cache_id);
 		
 		if(function_exists("shouQuanTpl")){
@@ -62,7 +63,7 @@ class smarty{
 		}else{
 			$this->html_file=$file;
 		}
-		 
+		
 	}
 	
 	public function fetchhtml($str){
@@ -73,10 +74,16 @@ class smarty{
 		 
 		ob_start();
 		extract($this->_var);
+		global $smarty;
+		$smarty=$this;
 		require $this->template_dir."/".$filename;
 		$out=ob_get_contents();
 		ob_end_clean();
 		return $out;
+	}
+	
+	public function inc($filename){
+		require $this->template_dir."/".$filename;
 	}
 	
 	public function is_cached($filename, $cache_id = ''){

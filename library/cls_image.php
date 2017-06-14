@@ -50,11 +50,13 @@ function makethumb($dstimg,$img,$dstw,$dsth=999,$all=false)
 		
 	}
 	$im = imagecreatetruecolor($new_width, $new_height);
+	$alpha = imagecolorallocatealpha($im, 0, 0, 0, 127);
+	imagefill($im, 0, 0, $alpha);
 	$imgtype=$this->getimgtype($img);
 	$image = $this->imagecreatefrom($img,$imgtype);
 	
 	imagecopyresampled($im, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-	
+	imagesavealpha($im, true);
 	$this->imagesave($im, $dstimg,$imgtype);
 	return $dstimg;
 }
