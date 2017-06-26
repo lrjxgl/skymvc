@@ -167,6 +167,36 @@ class model{
 		$this->clearTable();
 		return $data;
 	}
+	
+	/**
+	 * 批量插入数据***
+	**/
+	public function insertMore($data){
+		$table=$this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table);
+		
+		if(!empty($data)){
+			$i=0;
+			$fields="";
+			foreach($data[0] as $k=>$v){
+				if($i>0){
+					$fields.=",";
+				}
+				$fields.=$k;
+				$i++;
+			}
+			$values="";
+			foreach($data as $k=>$v){
+				if($k>0){
+					$values.=",";
+				}
+				$values.="("._implode($v).") ";
+			}
+		}
+		$sql=" insert into ".TABLE_PRE.$table." ($fields) values $values ;";
+		$this->db->query($sql);
+		$this->clearTable();
+		return $data;
+	}
 	/**
 	*更新数据
 	*data array("title"=>'aaa');
