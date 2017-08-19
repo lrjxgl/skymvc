@@ -1,4 +1,5 @@
 <?php
+	
 	class curl{
 		public $ch;
 		public $curl_json=false;
@@ -28,6 +29,9 @@
 			$this->init($url);
 			if($this->curl_json){
 				$this->setJson($data);
+				curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
+			}else{
+				curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
 			} 			 
 			$content= curl_exec($this->ch);
 			curl_close($this->ch);
@@ -36,7 +40,10 @@
 		
 		function post($url,$data=array(),$header=array()){
 			$this->init($url,$header); 
-		    curl_setopt($this->ch, CURLOPT_POST, TRUE); 
+		    curl_setopt($this->ch, CURLOPT_POST, TRUE);
+		    if($this->curl_json){
+				$this->setJson($data);
+			} 
 		    curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
 			curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 1);
 			 curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 2);

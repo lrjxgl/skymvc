@@ -180,6 +180,7 @@ function img_remote($content,$w=400,$h=400){
 }
 
 function IMAGES_SITE($imgurl){
+	if(empty($imgurl)) return "";
 	if(stripos($imgurl,"http://")===false && stripos($imgurl,"https://")===false ){
 		return IMAGES_SITE.$imgurl;
 	}else{
