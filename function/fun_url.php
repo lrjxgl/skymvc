@@ -124,3 +124,5 @@ function url_get($url,$appindex="index.php|admin.php|module.php"){
 	}
 	 
 }
+
+?>

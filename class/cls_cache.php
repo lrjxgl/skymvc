@@ -3,7 +3,7 @@ if(!defined("ROOT_PATH")){
 	define("ROOT_PATH",dirname(str_replace("\\", "/", dirname(__FILE__)))."/");
 }
 /*
-»º´æÀàÎÄ¼ş
+ç¼“å­˜ç±»æ–‡ä»¶
 */
 if(!defined("ROOT_PATH")){
 	define("ROOT_PATH","");
@@ -95,8 +95,8 @@ class cache
 
 	
 	/*
-	@»ñÈ¡»º´æÄÚÈİ
-	*@file ÎÄ¼şÃû
+	@è·å–ç¼“å­˜å†…å®¹
+	*@file æ–‡ä»¶å
 	*/
 	public function file_get($key)
 	{
@@ -118,7 +118,7 @@ class cache
 	}
 	
 	/**
-	*ÉèÖÃ»º´æ
+	*è®¾ç½®ç¼“å­˜
 	*/
 	public function file_set($key,$val,$expire=3600){
 		$key=preg_replace("/[^\w]/","",$key);
@@ -130,7 +130,7 @@ class cache
 	}
 	
 	/**
-	*@»ñÈ¡php»º´æ ¿ÉÒÔÖ±½ÓincludeÎÄ¼ş
+	*@è·å–phpç¼“å­˜ å¯ä»¥ç›´æ¥includeæ–‡ä»¶
 	*/
 	public function php_get($key)
 	{
@@ -149,7 +149,7 @@ class cache
 	
 	 
 	/**
-	*@Ğ´Èëphp»º´æ Ò»°ãÓÃ×÷ÅäÖÃ»º´æ ÓÀ¾ÃÓĞĞ§
+	*@å†™å…¥phpç¼“å­˜ ä¸€èˆ¬ç”¨ä½œé…ç½®ç¼“å­˜ æ°¸ä¹…æœ‰æ•ˆ
 	*/
 	public function php_set($key,$val,$expire=3600)
 	{
@@ -162,7 +162,7 @@ class cache
 	
 	
 	/*
-	*mem»º´æ
+	*memç¼“å­˜
 	*/
 	
 	 
@@ -184,7 +184,7 @@ class cache
 	}
 	
 	/**
-	*mysql »º´æ
+	*mysql ç¼“å­˜
 	*/
 	
  
@@ -210,7 +210,7 @@ class cache
 	
 	
 	/**
-	@É¾³ıÄ¿Â¼»º´æ
+	@åˆ é™¤ç›®å½•ç¼“å­˜
 	*/
 	public function clear($type=0)
 	{
@@ -218,7 +218,7 @@ class cache
 	}
 	
 	/**
-	@É¾³ıÄ¿Â¼ÏÂµÄËùÓĞÎÄ¼ş ±£Áôµ±Ç°Ä¿Â¼
+	@åˆ é™¤ç›®å½•ä¸‹çš„æ‰€æœ‰æ–‡ä»¶ ä¿ç•™å½“å‰ç›®å½•
 	*/
 	function delfile($dir,$rmdir=0)
 	{
@@ -244,7 +244,7 @@ class cache
 	}
 	
 	
-	/*´´½¨ÎÄ¼ş¼Ğ*/
+	/*åˆ›å»ºæ–‡ä»¶å¤¹*/
 	function umkdir($dir)
 	{
 		$dir=str_replace(ROOT_PATH,"",$dir);

@@ -2,7 +2,7 @@
 if(!defined("ROOT_PATH")){
 	define("ROOT_PATH",  str_replace("\\", "/", dirname(dirname(__FILE__)))."/");
 }
-define("SKYVERSION",5.0);
+define("SKYVERSION",4.2);
 //全局变量
 //sql执行语句
 $GLOBALS['skysqlrun']="";
@@ -24,17 +24,8 @@ if(!defined("LANG")){
 **载入函数库
 **/
 $st=microtime(true);
-require_once("function/fun_error.php");
-require_once("function/fun_file.php");
-require_once("function/fun_url.php");
-require_once("function/function.php");
-require_once("function/fun_gps.php");
-require_once ("function/Xss.php");
-$dbclass=isset($dbclass)?$dbclass:"pdo";
-require_once("class/cls_".$dbclass.".php");//引入数据库文件
-require_once("class/cls_model.php");//引入模型
-require_once("class/cls_cache.php");
-require_once("class/cls_session.php");
+require_once "class_fun_all.php";
+ 
  
 /*加载用户自定义*/
 if(!empty($user_extends)){
@@ -359,10 +350,7 @@ class skymvc
 			$GLOBALS['control']=$this;
 			define("SKYINIT",1);
 			//过渡方法
-			if(function_exists("userinit")){
-				userinit($this);
-			}
-				
+			userinit($this);	
 		}
 	}
  
@@ -381,9 +369,7 @@ class skymvc
 				}
 			}
 			closedir($d);
-			if(isset($lang)){
-				$this->lang=$lang;
-			}
+			$this->lang=$lang;
 		}
 		//加载模块语言包
 		
@@ -398,11 +384,7 @@ class skymvc
 	
 	public function initsmarty()
 	{
-		if(defined("SMARTYPHP") && SMARTYPHP=="php" ){
-			include_once "class/cls_smarty_php.php";
-		}else{
-			include_once "class/cls_smarty.php";
-		}
+		 
 		$this->smarty=new Smarty();
 		if(ISWAP){
 			$this->smarty->template_dir   =S_WAP_TEMPLATE_DIR;
@@ -481,13 +463,7 @@ class skymvc
 	public function loadClass($cls,$dir=false,$isnew=true)
 	{
 		$dir=$dir?$dir:"library";
-		$excls=ROOT_PATH."/extends/".$dir."/cls_{$cls}.php";
-		if(file_exists($excls)){
-			 $file=$excls;
-		}else{
-			$file="{$dir}/cls_{$cls}.php";
-		}
-		include_once($file);
+		include_once("{$dir}/cls_{$cls}.php");
 		if($isnew==true){
 			$this->$cls = new $cls();
 		}
@@ -778,4 +754,3 @@ class skymvc
  
 	
 }
-?>

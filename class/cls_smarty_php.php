@@ -74,8 +74,7 @@ class smarty{
 		 
 		ob_start();
 		extract($this->_var);
-		global $smarty;
-		$smarty=$this;
+		 
 		require $this->template_dir."/".$filename;
 		$out=ob_get_contents();
 		ob_end_clean();

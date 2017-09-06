@@ -1,6 +1,6 @@
 <?php
 if(!class_exists("curl")){
-	require "cls_curl.php";	
+	require_once "cls_curl.php";	
 }
 class elasticSearch{
 	public $curl;

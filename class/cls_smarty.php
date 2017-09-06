@@ -1378,3 +1378,6 @@ class Smarty
 	
 	
 }
+
+
+?>

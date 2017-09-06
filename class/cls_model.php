@@ -8,7 +8,10 @@ class model{
 	function __construct(&$base)
 	{
 		$this->base=$base;
-		$this->db=$base->db;		
+		if(isset($base->db)){
+			$this->db=$base->db;	
+		}
+			
 	}
 	
 	public function setDb($table=NULL){
@@ -50,17 +53,17 @@ class model{
 	}
 	
 	public function begin(){
-		return false; 
+		 
 		return $this->db->query("BEGIN");
 	}
 	
 	public function commit(){
-		return false;  
+		  
 		return $this->db->query("COMMIT");
 	}
 	
 	public function rollback(){
-		return false;  
+		 
 		return $this->db->query("rollback");
 	}
 	
@@ -260,7 +263,7 @@ class model{
 						$format="x";
 					}elseif(preg_match("/decimal/i",$v['Type'])){
 						$format="r";
-						$len=6;
+						$len=7;
 					}
 					if($v['Field']=='starttime' or $v['Field']=='endtime'){
 						$data[$v['Field']]=strtotime(post($v['Field']));
@@ -282,3 +285,5 @@ class model{
 	
 	
 }
+
+?>

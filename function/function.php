@@ -195,18 +195,10 @@ function arrRemoveXss($arr){
 }
 
 function nRemoveXSS($str){
-	$ra1 = array('javascript', 'vbscript', 'expression', 'applet', 'meta', 'xml', 'blink', 'link',  'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound','base','alert');
-	$ra2 = array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
-	$ra = array_merge($ra1, $ra2);
-	$x_r="(".implode("|",$ra).")";
-	//过滤script 不允许<>
-	$str=preg_replace("/<script([^>]*)>/iUs","&ltscript\\1&gt",$str);
-	$str=str_replace("</script>","&lt/script&gt",$str);
-	//过滤a 允许<>
-	while(@preg_match("/<([^>]*){$x_r}([^>]*)>/iUs",$str)){
-			$str=preg_replace("/<([^>]*){$x_r}([^>]*)>/iUs","<\\1xss_\\3>",$str);
+	if(!is_object($GLOBALS['xssClass'])){
+		$GLOBALS['xssClass']=new Xss(); 
 	}
-	return $str;
+	return $GLOBALS['xssClass']->clean($str);
 }
 
 
@@ -499,7 +491,6 @@ function curl_get_contents($url,$timeout=30,$referer="http://www.qq.com"){
 	 $ch = curl_init();
 	 curl_setopt($ch, CURLOPT_URL, $url);
 	 curl_setopt($ch, CURLOPT_HEADER, 0);
-	 curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B176 MicroMessenger/4.3.2");
 	 curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
 	 curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 	 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
@@ -530,7 +521,6 @@ function curl_post_json($url, $json)
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE); 
     curl_setopt($ch, CURLOPT_POST, TRUE); 
     curl_setopt($ch, CURLOPT_POSTFIELDS, $json); 
-    //curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
     'Content-Type: application/json',
@@ -612,53 +602,70 @@ if(!defined("JIAMI_MIYAO")){
 	define("JIAMI_MIYAO","我要保密");
 }
 /*加密*/
-function jiami($str,$miyao=""){
+function jiami($str,$miyao=''){
 	$miyao=$miyao?$miyao:JIAMI_MIYAO;
-	$code=md5($miyao);
-	$a=0;
-	for($i=0;$i<6;$i++){
-		$a+=ord($code{$i});
+	$mlen=strlen($miyao);
+	$code=md5(md5($miyao));
+	$step=array(
+		1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+	);
+	$clen=strlen(base64_encode($miyao));
+	$str=base64_encode(urlencode($str));
+	 	  
+	$slen=strlen($str);
+	$nstr="";	
+	for($i=0;$i<$slen;$i++){
+		$nstr.=$str{$i};
+		if(in_array($i,$step)){		
+			$nstr.=$code{$i};
+		} 
 	}
-	$n= $a%1258;
-	$str=gzcompress($str,9);
-	$str=base64_encode($str);
-	preg_match_all("/./iUs",$str,$s);
-	$nstr="";
-	foreach($s[0] as $t){
-		$t1=ord($t);
-		if($t1+$n>12580){
-			$nstr.=$t;
-		}else{
-			$nstr.= chr($t1+$n);
-		}
-	}
-	return base64_encode(urlencode($nstr));
+	$nstr=$mlen.$nstr;
+	 
+	return $nstr;
 }
 /******解密******/
 function jiemi($str,$miyao=''){
 	$miyao=$miyao?$miyao:JIAMI_MIYAO;
-	$code=md5($miyao);
-	$a=0;
-	for($i=0;$i<6;$i++){
-		$a+=ord($code{$i});
+	$mlen=strlen($miyao);
+	//判断秘钥长度
+	$mmi=substr($str,0,strlen($mlen));
+	if($mmi!=$mlen){
+		return false;
 	}
-	$n= $a%1258;
-	$str=urldecode(base64_decode($str));
-	preg_match_all("/./iUs",$str,$s);
+	$str=substr($str,strlen($mlen));
+ 
+	$code=md5(md5($miyao));
+	$step=array(
+		1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+	);
+	$bstep=array();
+	$si=1;
+	foreach($step as $s){
+		$bstep[]=$s+$si;
+		$si++;
+	} 
+	$clen=strlen(base64_encode($miyao));
+	$slen=strlen($str);
 	$nstr="";
-	foreach($s[0] as $t){
-		$t1=ord($t);
-		if($t1>12580){
-			$nstr.=$t;
+ 
+	$ii=1;
+	for($i=0;$i<$slen;$i++){
+		if(in_array($i,$bstep)){
+			 
+			if($str{$i} != $code{$i-$ii}){
+				return false;
+			}
+			 $ii++;
+			continue;
 		}else{
-			$nstr.= chr($t1-$n);
+			$nstr.=$str{$i};
 		}
 	}
-	$nstr=base64_decode($nstr);
-	$nstr=@gzuncompress($nstr);
+	$nstr=urldecode(base64_decode($nstr));
+	
 	return $nstr;
 } 
-
 /***获取一及域名***/
  function getBaseDomain($host){
 		$com=array(

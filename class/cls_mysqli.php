@@ -56,57 +56,53 @@ class mysql
 		}else{
 			$port=3306;
 		}
-	 	$dsn = "mysql:host=".$master['host'].";port={$port};dbname=".$master['database']."";
-		
-		try {
-			 $this->db = new PDO($dsn, $master['user'], $master['pwd']);
-			 $rs=$this->db->prepare("SET sql_mode=''");
-			 $rs->execute();
-			  $rs=$this->db->prepare("SET NAMES ".$this->charset);
-			 $rs->execute();
-		} catch ( PDOException $e ) {
-			echo  'Connection failed: '  .  $e -> getMessage ();
+		$this->db=new mysqli($master['host'],$master['user'],$master['pwd'],$master['database']);
+	 	if ($this->db->connect_error) {
+		    die('Connect Error (' . $this->db->connect_errno . ') '
+		            . $this->db->connect_error);
 		}
+		$this->db->query("SET sql_mode=''"); 
+		$this->db->query("SET NAMES ".$this->charset);
+		
 	 }
 	 /**
 	  * 执行sql语句
 	  */
 	 public function query($sql){
-		try{   
-			if($this->testmodel){
-				
-				$GLOBALS['skysqlrun'] .="<br>".$sql;
-				$GLOBALS['skysqlnum'] ++;
-			}
-			$this->sql=$sql;
-			if(!$this->db){
-				$this->connect();
-			}
-			$this->stime=microtime(true);
-			$this->query=$rs = $this->db->prepare($sql);
-			$rs->execute();
-			 
+	 	if(!$this->db->ping()){
+	 		$this->connect();
+	 	}
+		   
+		if($this->testmodel){
 			
-			if($this->testmodel){
-				$GLOBALS['query_time']+=microtime(true)-$this->stime;
-			}
-			if($this->errno() >0 ){
-				$e=$this->error();
-				if(TESTMODEL){
-					showError("sql错误：".$sql." ".$e[2]);
-					exit;
-				}else{
-					showError("sql错误");
-					exit;
-				}
-			};
-			return $rs;
-		}catch(PDOException $e){  
-			if($e->errorInfo[0] == 70100 || $e->errorInfo[0] == 2006){  
-				$this->connect();
-				return $this->query($sql);  
-			}else exit($e->errorInfo[2]);  
+			$GLOBALS['skysqlrun'] .="<br>".$sql;
+			$GLOBALS['skysqlnum'] ++;
 		}
+		$this->sql=$sql;
+		if(!$this->db){
+			$this->connect();
+		}
+		$this->stime=microtime(true);
+		$this->query= $this->db->query($sql);
+	 	
+		 
+		
+		if($this->testmodel){
+			$GLOBALS['query_time']+=microtime(true)-$this->stime;
+		}
+		 
+		if($this->errno() >0 ){
+			$e=$this->error();
+			if(TESTMODEL){
+				showError("sql错误：".$sql." ".$e);
+				exit;
+			}else{
+				showError("sql错误");
+				exit;
+			}
+		};
+		return $this->query;
+		 
 	 }
 	 
 	 public function slowLog(){
@@ -125,22 +121,22 @@ class mysql
 	  * 返回结果集中的数目
 	  */
 	public function num_rows(){
-		return $this->query-> columnCount ();
+		return $this->query-> num_rows ();
 	}
 	
 	/**
 	 * 将结果集解析成数组
 	 */
-	public function fetch_array($result_type=PDO::FETCH_ASSOC){
-		$this->query-> setFetchMode ( $result_type );
-		return $this->query->fetchAll();	
+	public function fetch_array($result_type=MYSQLI_ASSOC){
+ 
+		return $this->query->fetch_array($result_type);	
 	}
 	
 	/**
 	 * 从结果集中取一行
 	 */
-	public function fetch_row($result_type=PDO::FETCH_ASSOC){
-		return $this->query->fetch($result_type);	
+	public function fetch_row($result_type=MYSQLI_ASSOC){
+		return $this->query->fetch_array($result_type);	
 	}
 	
 	
@@ -148,7 +144,7 @@ class mysql
 	 * 取得结果集中字段的数目
 	 */
 	public function num_fields(){
-		return $this->query->columnCount ();
+		return $this->query->field_count ();
 	}
 	
 	/*
@@ -157,7 +153,7 @@ class mysql
 	public function insert($table,$data){
 		$fields=$this->compile_array($data);
 		$this->query("INSERT INTO ".TABLE_PRE.$table." SET $fields ", $this->db);
-		return $this->insert_id();
+		return $this->insert_id;
 	}
 	/**
 	 * 更新数据
@@ -165,8 +161,8 @@ class mysql
 	public function update($table,$data,$w=""){
 		$fields=$this->compile_array($data);
 		$where=$w?" WHERE ".$this->compile_array($w," AND"):"";
-		$this->query("UPDATE ".TABLE_PRE.$table." SET {$fields} {$where} ", $this->db);
-		return $this->affected_rows();
+		$this->query("UPDATE ".TABLE_PRE.$table." SET {$fields} {$where} ");
+		return $this->db->affected_rows;
 	}
 	/**
 	 * 删除数据
@@ -174,7 +170,7 @@ class mysql
 	public function delete($table,$w=''){
 		$where=$w?" WHERE ".$this->compile_array($w," AND "):"";
 		$this->query("DELETE FROM ".TABLE_PRE."$table {$where} ");
-		return $this->affected_rows( $this->db);		
+		return $this->db->affected_rows;;		
 	} 
 	
 	/**
@@ -248,12 +244,15 @@ class mysql
 	 */
 	public function getAll($sql){
 		$res=$this->query($sql);
+		$data=array();
 		if($res!==false)
 		{
-			$res-> setFetchMode ( PDO :: FETCH_ASSOC );
-			$arr=$res->fetchAll();
+			while($rs=$res->fetch_array(MYSQLI_ASSOC)){
+				$data[]=$rs;
+			}
+			 
 			$this->slowLog();
-			return $arr;
+			return $data;
 		}else
 		 {
 			return false;
@@ -266,11 +265,14 @@ class mysql
 	 */
 	public function getOne($sql){
 		$res=$this->query($sql);
+		
 		if($res !==false){
-			$rs=$res->fetch();
+			$rs=$res->fetch_array(MYSQLI_ASSOC);
+			 
 			$this->slowLog();
-			if($rs!==false){
-				return $rs[0];
+			if($rs!=false){
+				 
+				return array_shift($rs);
 			}else{
 				return '';
 			}
@@ -284,9 +286,10 @@ class mysql
 	/*获取一行*/
 	 public function getRow($sql){
         $res = $this->query($sql);
+        
         if ($res !== false){
-			$res-> setFetchMode ( PDO :: FETCH_ASSOC );
-			$arr=$res->fetch();
+		 	
+			$arr=$res->fetch_array(MYSQLI_ASSOC);
 			$this->slowLog();
             return $arr;
         }else{
@@ -297,18 +300,14 @@ class mysql
     public function getCols($sql)
 	{
 		$res=$this->query($sql);
+		$data=array();
 		if($res!==false){
-			$res-> setFetchMode ( PDO :: FETCH_NUM );
-
-			$data=$res->fetchAll();
-			$arr=array();
-			if(!empty($data)){
-				foreach($data as $v){
-					$arr[]=$v[0];
-				}
+			while($rs=$res->fetch_array(MYSQLI_ASSOC)){
+				$data[]=array_shift($rs);
 			}
+			
 			$this->slowLog();
-			return $arr;
+			return $data;
 		}else{
 			return false;
 		}
@@ -319,13 +318,13 @@ class mysql
 	 */
 	public function affected_rows(){
 	 
-		return  $this->query -> rowCount ();
+		return  $this->query -> affected_rows;
 	}
 	/*
 	 * 最新插入的函数
 	 * */
 	public function insert_id( ){
-        return $this->db->lastInsertId();
+        return $this->db->insert_id;
     }
 	
 	/*复制表*/
@@ -342,14 +341,14 @@ class mysql
     /*
      * 获取错误信息
      * */
-    public function error($link=null){
-        return $this->query->errorInfo();
+    public function error(){
+        return $this->db->error;
     }
 	/*
 	 * 获取错误代号
 	 * */
-    public function errno($link=null){
-        return $this->query->errorCode();
+    public function errno(){
+        return $this->db->errno;
     }
 	
 	
