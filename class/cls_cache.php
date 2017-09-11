@@ -14,9 +14,11 @@ class cache
 	public $cache_dir; 
 	public $mem=null;
 	public $cache_type="file";
-	public $mysql;	
-	function __construct()
+	public $mysql;
+	public $cacheconfig=array();	
+	function __construct($cacheconfig=array())
 	{
+		$this->cacheconfig=$cacheconfig;
 		$this->init();
 		$this->defaultType();
 	}
@@ -30,8 +32,8 @@ class cache
 		return "/".$d{0}."/".$d[1]."/".$d[2]."/";
 	}
 	public function setType($cache_type){
-		global $cacheconfig;
-		if(!isset($cacheconfig[$cache_type])){
+	 
+		if(!isset($this->cacheconfig[$cache_type])){
 			return $this->defaultType();
 		}
 		$this->cache_type=$cache_type;
@@ -41,24 +43,29 @@ class cache
 	 
 	
 	public function defaultType(){
-		global $cacheconfig;
-		if($cacheconfig['memcache']){
+		 
+		if($this->cacheconfig['redis']){
+			$this->cache_type="redis";
+		}elseif($this->cacheconfig['memcache']){
 			$this->cache_type="memcache";
-		}elseif($cacheconfig['mysql']){
+		}elseif($this->cacheconfig['mysql']){
 			$this->cache_type='mysql';
 		}else{
 			$this->cache_type="file";
 		}
-		
+		 
 		
 	}
 	
 	public function set($key,$val,$expire=3600)
 	{
-		
+		 
 		 switch($this->cache_type){
 			case "memcache":
 					$this->mem_set($key,$val,$expire);
+				break;
+			case "redis":
+					$this->redis_set($key,$val,$expire);
 				break; 
 			case "file":
 			
@@ -75,9 +82,13 @@ class cache
 	}
 	
 	public function get($key){
+		 
 		 switch($this->cache_type){
 			 case "memcache":
 			 			return $this->mem_get($key);
+					break;
+			case "redis":
+						return $this->redis_get($key);
 					break;
 			 case "file":
 						return $this->file_get($key);
@@ -178,6 +189,23 @@ class cache
 	public function mem_get($k){
 		if(function_exists("cache_mem_get")){
 			return cache_mem_get($k);
+		}else{
+			return $this->file_get($k);
+		}
+	}
+	
+	/**redis 缓存**/
+	public function redis_set($k,$v,$expire=0){
+		if(function_exists("cache_redis_set")){
+			cache_redis_set($k,$v,$expire);
+		}else{
+			$this->file_set($k,$v,$expire);
+		}
+	}
+	
+	public function redis_get($k){
+		if(function_exists("cache_redis_get")){
+			return cache_redis_get($k);
 		}else{
 			return $this->file_get($k);
 		}

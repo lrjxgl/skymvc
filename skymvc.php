@@ -24,22 +24,22 @@ if(!defined("LANG")){
 **载入函数库
 **/
 $st=microtime(true);
-require_once("function/fun_error.php");
-require_once("function/fun_file.php");
-require_once("function/fun_url.php");
-require_once("function/function.php");
-require_once("function/fun_gps.php");
-require_once ("function/Xss.php");
+require("function/fun_error.php");
+require("function/fun_file.php");
+require("function/fun_url.php");
+require("function/function.php");
+require("function/fun_gps.php");
+require("function/Xss.php");
 $dbclass=isset($dbclass)?$dbclass:"pdo";
-require_once("class/cls_".$dbclass.".php");//引入数据库文件
-require_once("class/cls_model.php");//引入模型
-require_once("class/cls_cache.php");
-require_once("class/cls_session.php");
+require("class/cls_".$dbclass.".php");//引入数据库文件
+require("class/cls_model.php");//引入模型
+require("class/cls_cache.php");
+require("class/cls_session.php");
  
 /*加载用户自定义*/
 if(!empty($user_extends)){
 	foreach($user_extends as $ex){
-		require_once("extends/$ex");
+		require("extends/$ex");
 	}
 }
 
@@ -75,13 +75,13 @@ function loadFun($files){
 	if(is_array($files)){
 		foreach($files as $file){
 			if(file_exists(ROOT_PATH."skymvc/loadfun/fun_".$file.".php")){
-				require_once(ROOT_PATH."skymvc/loadfun/fun_".$file.".php");
+				require(ROOT_PATH."skymvc/loadfun/fun_".$file.".php");
 			}
 			
 		}
 	}else{
 		if(file_exists(ROOT_PATH."skymvc/loadfun/fun_".$files.".php")){
-			require_once(ROOT_PATH."skymvc/loadfun/fun_".$files.".php");
+			require(ROOT_PATH."skymvc/loadfun/fun_".$files.".php");
 		}
 		
 	}
@@ -155,7 +155,7 @@ function M($model,&$base=NULL){
 	}else{
 		
 		if(file_exists(	MODEL_DIR."/$model.model.php")){		
-			require_once   MODEL_DIR."/$model.model.php";
+			require   MODEL_DIR."/$model.model.php";
 			//controler  model调用
 			$_model="{$model}Model";
 					
@@ -189,7 +189,7 @@ function MM($module,$model,&$base=NULL){
 		return $_MDS[$model.'MModel'];
 	}else{
 		if(file_exists(ROOT_PATH."module/".$module."/source/model/$model.model.php")){		
-			require_once    ROOT_PATH."module/".$module."/source/model/$model.model.php";
+			require    ROOT_PATH."module/".$module."/source/model/$model.model.php";
 			$_model="{$model}Model";
 			$m=new $_model($base);
 			$m->setDb($model);
@@ -223,7 +223,7 @@ function C($ctrl='',$dir=false){
 			$file= $dir."/".$ctrl.".ctrl.php";
 			 
 			if(file_exists($file)){
-				include_once $file;
+				include $file;
 				$ctrlClass= $ctrl."Control";
 				$GLOBALS['control_'.$ctrl]=new $ctrlClass();
 				if(method_exists($ctrlClass,'onInit')){
@@ -247,7 +247,7 @@ function cc($module='',$ctrl='',$dir='index'){
 		}else{
 			$file=ROOT_PATH."module/".$module."/source/$dir/$ctrl.ctrl.php";		 
 			if(file_exists($file)){
-				include_once $file;
+				include $file;
 				$ctrlClass= $ctrl."Control";
 				return $GLOBALS[$module.'_control_'.$ctrl]=new $ctrlClass();
 				
@@ -261,20 +261,15 @@ function cc($module='',$ctrl='',$dir='index'){
 /**
 	*缓存
 */
+
 function cache(){
+		global $cacheconfig;
 		if(isset($GLOBALS['cache'])) return $GLOBALS['cache'];	
-		$GLOBALS['cache']=new cache();
+		$GLOBALS['cache']=new cache($cacheconfig);
+		
 		return $GLOBALS['cache'];
 }
-if($cacheconfig['mysql']){
-	function cache_mysql_set($k,$v,$expire){
-		M('dbcache')->set($k,$v,$expire);
-	}
-	
-	function cache_mysql_get($k){
-		return M('dbcache')->get($k);
-	}
-}
+ 
 /*SESSION*/
 function initsession(){
 	if(defined("SESSION_USER") && SESSION_USER==1 ){
@@ -317,7 +312,7 @@ if(!file_exists(CONTROL_DIR."/$m.ctrl.php"))
 	$_GET['m']=$m="index";
 }
 
-include_once(CONTROL_DIR."/$m.ctrl.php");
+include(CONTROL_DIR."/$m.ctrl.php");
 
 $classname = $m.'Control';
 

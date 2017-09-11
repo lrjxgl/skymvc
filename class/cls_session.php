@@ -18,6 +18,7 @@ class session{
 	}
 	function open($save_path, $session_name)
 	{
+		 
 		return true;
 	}
 	
@@ -28,8 +29,8 @@ class session{
 	
 	function read($id)
 	{	 
-		return sess_read($id); 
-		return false;
+		$v= sess_read($id); 
+		return $v;
 	}
 	
 	function write($id, $sess_data)

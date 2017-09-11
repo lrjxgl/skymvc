@@ -56,7 +56,7 @@ class mysql
 		}else{
 			$port=3306;
 		}
-		$this->db=new mysqli($master['host'],$master['user'],$master['pwd'],$master['database']);
+		$this->db=new mysqli($master['host'],$master['user'],$master['pwd'],$master['database'],$port);
 	 	if ($this->db->connect_error) {
 		    die('Connect Error (' . $this->db->connect_errno . ') '
 		            . $this->db->connect_error);
