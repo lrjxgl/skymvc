@@ -1,7 +1,7 @@
 <?php
 class session{
 
-	public $db;
+	 
 	function __construct()
 	{
 		session_module_name('user'); 		

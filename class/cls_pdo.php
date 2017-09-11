@@ -52,6 +52,7 @@ class mysql
 		$arr=explode(":",$master['host']);
 		$host=$arr[0];
 		if(isset($arr[1])){
+			$master['host']=$arr[0];
 			$port=$arr[1];
 		}else{
 			$port=3306;
