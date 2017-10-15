@@ -497,7 +497,7 @@ class Smarty
 						$re.=",";
 					}
 					if(substr($kb,0,1)=='$'){
-						$re.='$this->_var["'.str_replace("$","",$kb).'"]';
+						$re.='$this->_var["'.str_replace("$","",trim($kb)).'"]';
 					}else{
 						$re.=$kb;
 					}
