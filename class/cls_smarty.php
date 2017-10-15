@@ -486,6 +486,28 @@ class Smarty
 			return '<?php echo ' . substr($tag, 6) . '; ?>';
 		}elseif(substr($tag,0,4)=='math'){//计算函数
 			return $this->_math($tag);
+		}elseif(substr($tag,0,3)=='fun'){
+			$f=substr($tag,4);
+			preg_match("/\((.*)\)/i",$f,$a);
+			if(isset($a[1])){
+				$re="";
+				$b=explode(",",$a[1]);
+				foreach($b as $k=>$kb){
+					if($k>0){
+						$re.=",";
+					}
+					if(substr($kb,0,1)=='$'){
+						$re.='$this->_var["'.str_replace("$","",$kb).'"]';
+					}else{
+						$re.=$kb;
+					}
+				}
+				$f=str_replace($a[1],$re,$f);
+			} 
+			
+			 
+			$ex="<?php echo $f; ?>";  
+			return $ex;
 		}elseif ($tag{0} == '/') // 结束 tag
         {
             switch (substr($tag, 1))

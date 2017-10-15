@@ -16,26 +16,38 @@ class stole{
 	public function __construct(){
 		
 	}
-	public function getContent($url){
+	public function getContent($url,$proxy=""){
 		$url=str_replace("&amp;","&",$url);
 		$url=str_replace("/../","/",$url);
 		$this->dir=dirname($url)."/";
 		$a=parse_url($url);
-		$this->domain=$a['scheme']."://".$a['host']."/";	
-		$this->content=$this->curl_get_contents($url);
+		$this->domain=$a['scheme']."://".$a['host']."/";
+		 
+		$this->content=$this->curl_get_contents($url,$proxy);
+		if(empty($this->content)) return false;
 		//替换链接位置
-		
+		 
 		$this->content=$this->replace_src();
 		//替换图片
 		$this->content=preg_replace("/<input([^>]*)type=\"image\"([^>]*)>/i","<img \\1 \\2>",$this->content);
 		$this->charset=$this->getCharset();
+		 
+		if($this->charset!="utf-8"){
+			
+			$this->content=mb_convert_encoding($this->content,"utf-8",$this->charset); 
+		}
+		 
 	}
 	
-	function curl_get_contents($url){
+	function curl_get_contents($url,$proxy=""){
 		$ch=curl_init();
+		if(!empty($proxy)){
+			curl_setopt ($ch, CURLOPT_PROXY, $proxy);
+			 
+		}
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)"); 
+		curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (compatible; MSIE 90.0; Windows NT 6.1; Trident/6.0)"); 
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		$c=curl_exec($ch);
 		curl_close($ch);
@@ -44,8 +56,12 @@ class stole{
 	public function replace_src($content=""){
 		$content=$content?$content:$this->content;
 		preg_match_all("/src=['\"](.*)['\"]/iUs",$content,$arr);
+		$ins=array();
 		if($arr && isset($arr[1])){
 			foreach($arr[1] as $v){
+				if(in_array($v,$ins)) continue;
+				$ins[]=$v;
+				
 				if(substr($v,0,1)=="/"){
 					$content=str_replace($v,$this->domain.$v,$content);
 				}elseif(substr($v,0,5)=="http:" or substr($v,0,5)=="https"){
@@ -60,27 +76,15 @@ class stole{
 	}
 	
 	public function getCharset($content=""){
-		if(!defined("CHARSET")){
-			define("CHARSET","utf-8");
-		}
+	 
 		$content=$content?$content:$this->content;
 		preg_match("/<meta[^>]*(gbk|utf-8|gb2312|big5)[^>]*[^>]>/is",$content,$a);
 		if(isset($a[1]) && !empty($a[1])){
 			return strtolower($a[1]);
 		}else{
-			if($content==iconv(CHARSET,"gbk",iconv("gbk",CHARSET,$content))){
-				return "gbk";
-			}
 			
-			if($content==iconv(CHARSET,"gb2312",iconv("gb2312",CHARSET,$content))){
-				return "gb2312";
-			}
 			
-			if($content==iconv(CHARSET,"utf-8",iconv("utf-8",CHARSET,$content))){
-				return "utf-8";
-			}
-			
-			return CHARSET;
+			return "utf-8";
 			
 		}
 		
@@ -92,7 +96,7 @@ class stole{
 	public function preg_one($preg,$content=""){
 		$content=$content?$content:$this->content;
 		$preg=$this->getPreg($preg); 
-		preg_match("/$preg/is",$content,$a);
+		preg_match("/$preg/iUs",$content,$a);
 		if(isset($a[1])){
 			return $a[1];
 		}else{

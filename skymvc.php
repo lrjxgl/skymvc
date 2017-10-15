@@ -29,7 +29,6 @@ require("function/fun_file.php");
 require("function/fun_url.php");
 require("function/function.php");
 require("function/fun_gps.php");
-require("function/Xss.php");
 $dbclass=isset($dbclass)?$dbclass:"pdo";
 require("class/cls_".$dbclass.".php");//引入数据库文件
 require("class/cls_model.php");//引入模型

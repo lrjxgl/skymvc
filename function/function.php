@@ -195,10 +195,18 @@ function arrRemoveXss($arr){
 }
 
 function nRemoveXSS($str){
-	if(!is_object($GLOBALS['xssClass'])){
-		$GLOBALS['xssClass']=new Xss(); 
+	$ra1 = array('javascript', 'vbscript', 'expression', 'applet', 'meta', 'xml', 'blink', 'link',  'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound','base','alert');
+	$ra2 = array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
+	$ra = array_merge($ra1, $ra2);
+	$x_r="(".implode("|",$ra).")";
+	//过滤script 不允许<>
+	$str=preg_replace("/<script([^>]*)>/iUs","&ltscript\\1&gt",$str);
+	$str=str_replace("</script>","&lt/script&gt",$str);
+	//过滤a 允许<>
+	while(@preg_match("/<([^>]*){$x_r}([^>]*)>/iUs",$str)){
+			$str=preg_replace("/<([^>]*){$x_r}([^>]*)>/iUs","<\\1xss_\\3>",$str);
 	}
-	return $GLOBALS['xssClass']->clean($str);
+	return $str;
 }
 
 
@@ -465,26 +473,27 @@ function realip() {
 其中code的值的含义为，0：成功，1：失败。
 *
 */
-function ipCity($ip,$type=0){
-	if($ip=="127.0.0.1") return false;
-	$key="ip".$type."_".str_replace(".","_",$ip);
-	if($data=cache()->get($key)) return $data;
-	$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
-	$d=json_decode($c,true);
-	if($d['code']==0 && !empty($d['data']['city_id'])){
-		if($type==0){
-			cache()->set($key,$d['data'],3600000);
-			return $d['data'];
+if(!function_exists("ipCity")){
+	function ipCity($ip,$type=0){
+		if($ip=="127.0.0.1") return false;
+		$key="ip".$type."_".str_replace(".","_",$ip);
+		if($data=cache()->get($key)) return $data;
+		$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
+		$d=json_decode($c,true);
+		if($d['code']==0 && !empty($d['data']['city_id'])){
+			if($type==0){
+				cache()->set($key,$d['data'],3600000);
+				return $d['data'];
+			}else{
+				$data=$d['data']['region'].$d['data']['city'].$d['data']['county'];
+				cache()->set($key,$data,3600000);
+				return $data;
+			}
 		}else{
-			$data=$d['data']['region'].$d['data']['city'].$d['data']['county'];
-			cache()->set($key,$data,3600000);
-			return $data;
+			return false;
 		}
-	}else{
-		return false;
 	}
 }
-
 
 /*获取远程内容*/
 function curl_get_contents($url,$timeout=30,$referer="http://www.qq.com"){

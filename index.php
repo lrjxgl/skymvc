@@ -36,6 +36,7 @@ if(!file_exists('install.lock'))
 	$str=' 
 define("MYSQL_CHARSET","utf8");
 define("TABLE_PRE","sky_");
+$dbclass="mysqli";
 /*
 $dbconfig["master"]=array(
 	"host"=>"127.0.0.1","user"=>"root","pwd"=>"123","database"=>"xyo2o"
@@ -62,14 +63,24 @@ $VMDBS=array(
  
 /*缓存配置*/
 $cacheconfig=array(
-	"file"=>true,
-	"php"=>true,
+	"redis"=>false,
+	"memcache"=>false,
 	"mysql"=>false,
-	"memcache"=>false
+	"file"=>true,
+	"php"=>true
+	
 );
 /*用户自定义函数文件*/
 $user_extends=array(
 	"ex_fun.php",
+	//"cache/ex_cache_redis.php",
+	
+	//"cache/ex_cache_memcache.php",
+	//"cache/ex_cache_mysql.php",
+	//"session/ex_sess_redis.php",
+	//"session/ex_sess_mysql.php",
+	//"session/ex_sess_memcache.php"
+ 
 );
 /*Session配置 1为自定义 0为系统默认*/
 define("SESSION_USER",0);
