@@ -204,7 +204,7 @@ class mysql
 		$fields=isset($data['fields'])?$data['fields']:" * ";
 		$where=(!isset($data['where']) or empty($data['where']))?"":" where ".$this->compile_array($data['where']," AND ");
 		$order=isset($data['order']) && !empty($data['order'])?" ORDER BY ".$data['order']:"";
-		return $this->getOne("SELECT {$fields} FROM ".TABLE_PRE."{$table}  {$where} {$order} LIMIT 1 ");
+		return $this->getOne("SELECT {$fields} FROM ".TABLE_PRE."{$table}  {$where} {$order} LIMIT {$start},1 ");
 	}
 	/**
 	 * 获取一行数据
@@ -216,7 +216,7 @@ class mysql
 		$fields=isset($data['fields'])?$data['fields']:" * ";
 		$where=(!isset($data['where']) or empty($data['where']))?"":" where ".$this->compile_array($data['where']," AND ");
 		$order=isset($data['order']) && !empty($data['order'])?" ORDER BY ".$data['order']:"";
-		return $this->getRow("SELECT {$fields} FROM ".TABLE_PRE."{$table}  {$where} {$order} LIMIT 1 ");
+		return $this->getRow("SELECT {$fields} FROM ".TABLE_PRE."{$table}  {$where} {$order} LIMIT {$start},1 ");
 	}
 	/**
 	 * 获取一列数据

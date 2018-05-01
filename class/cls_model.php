@@ -214,6 +214,49 @@ class model{
 		$this->clearTable();
 		return $data;
 	}
+	/*****
+	 * 批量更新 insert into ...on duplicate key update
+	 * $undata[]=array(
+	 * 	"id"=>1,
+	 * 	"orderindex"=>2
+	 * );
+	 * ****/
+	
+	public function updateMore($updata=array()){
+		$table=$this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table);
+		if(!empty($updata)){
+			$sql=" insert into ".table($table)."(";
+			$i=0;
+			foreach($updata[0] as $k=>$v){
+				if($i>0){
+					$sql.=",";
+				}
+				$i++;
+				$sql.=$k;
+			}
+			$sql.=") values ";
+			
+			foreach($updata as $k=>$v){
+				if($k>0){
+					$sql.=",";
+				}
+				$sql.="("._implode($v).") ";
+			}
+			$sql.="on duplicate key update ";
+			$i=0;
+			foreach($updata[0] as $k=>$v){
+				if($i>0){
+					$sql.=",";
+				}
+				$i++;
+				$sql.=" $k=values($k) ";
+			}
+		 
+			$res=$this->db->query($sql);
+			$this->clearTable();
+			return $res;
+		} 
+	}
 	/**
 	/*修改数字类型
 	*/
@@ -246,12 +289,13 @@ class model{
 		$table=$this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table);
 		return $this->db->getAll("show columns from ".TABLE_PRE.$table."");
 	}
-	public function postData(){
+	public function postData($unPost=array()){
 		$table=$this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table);
 		$fields=$this->getFields();
 		if($fields){
 			foreach($fields as $k=>$v){
-				//if($k==0) continue;
+				if($k==0) continue;
+				if(in_array($v['Field'],$unPost)) continue;
 				if(isset($_POST[$v['Field']])){
 					$format="h";
 					$len=0;

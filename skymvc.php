@@ -41,7 +41,12 @@ if(!empty($user_extends)){
 		require("extends/$ex");
 	}
 }
-
+if(!defined("REWRITE_TYPE")){
+	define("REWRITE_TYPE","");
+}
+if(!defined("WAP_DOMAIN")){
+	define("WAP_DOMAIN","");
+}
 if(defined("REWRITE_TYPE")  && REWRITE_TYPE=='pathinfo'){
 	url_get($_SERVER['REQUEST_URI']);
 }
@@ -330,6 +335,9 @@ if(function_exists("userinit"))
 }
 if(method_exists($control,'onInit')){
 	$control->onInit();
+}
+if(!defined("AUTO_CHECK_BAD_WORD")){
+	define("AUTO_CHECK_BAD_WORD",0);
 }
 if(AUTO_CHECK_BAD_WORD==1){
 	$control->checkBadWord();

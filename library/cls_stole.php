@@ -141,26 +141,6 @@ class stole{
 		$preg=preg_replace("/{[\w]+=[^}]*}/iUs",".*",$preg);
 		return $preg;
 		
-		//替换标
-		$preg=preg_replace("/{title=([^}]*)}/iUs","\\1",$preg);
-		$preg=str_replace("{title}",".*",$preg);
-		
-		//替换url
-		$preg=preg_replace("/{url=([^}]*)}/iUs","\\1",$preg);
-		$preg=str_replace("{url}",".*",$preg);
-		//替换时间
-		$preg=preg_replace("/{time=([^}]*)}/iUs","\\1",$preg);
-		$preg=str_replace("{time}",".*",$preg);
-		//替换作者
-		$preg=preg_replace("/{author=([^}]*)}/iUs","\\1",$preg);
-		$preg=str_replace("{author}",".*",$preg);
-		//内容
-		$preg=preg_replace("/{content=([^}]*)}/iUs","\\1",$preg);
-		$preg=str_replace("{content}",".*",$preg);
-		//简介
-		$preg=preg_replace("/{description=([^}]*)}/iUs","\\1",$preg);
-		$preg=str_replace("{description}",".*",$preg);
-		return $preg;
 	}
 	/*获取解析标签*/
 	public function getTag($preg){

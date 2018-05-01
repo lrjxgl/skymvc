@@ -301,7 +301,9 @@ class Smarty
         {
             $this->_current_file = $filename;
 			if(!file_exists($filename)){
-            	echo "模板".$filename."不存在";
+			 
+            	exit("模板".$filename.'不存在');
+            	 
             	return false;
             }
             $source = $this->fetch_str(file_get_contents($filename));
@@ -607,15 +609,15 @@ class Smarty
 						}
 					}
 					 
-					if(isset($t[dir])){
-						if(preg_match("/this->_var/i",$t[dir])){
-							return '<?php echo $this->fetch(' . "'$t[file]'" . ',0,'.$t[dir].'); ?>';
+					if(isset($t['dir'])){
+						if(preg_match("/this->_var/i",$t['dir'])){
+							return '<?php echo $this->fetch(' . "'$t[file]'" . ',0,'.$t['dir'].'); ?>';
 						}else{
-							return '<?php echo $this->fetch(' . "'$t[file]'" . ',0,'."'$t[dir]'".'); ?>';
+							return '<?php echo $this->fetch(' . "'$t[file]'" . ',0,'."'{$t['dir']}'".'); ?>';
 						}
 						
 					}else{
-                    	return '<?php echo $this->fetch(' . "'$t[file]'" . '); ?>';
+                    	return '<?php echo $this->fetch(' . "'{$t['file']}'" . '); ?>';
 					}
                     break;
        
