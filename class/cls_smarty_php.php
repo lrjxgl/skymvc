@@ -7,6 +7,7 @@ class smarty{
     public $compile_dir    = '';//编译文件夹
 	public $html_dir		='';//生成静态文件夹
 	public $htm_lfile="";
+	public $_var;
 	public function __construct(){
 		
 	}
@@ -14,7 +15,7 @@ class smarty{
 	public function goAssign($tpl_var, $value = ''){
 		
 		if(get('ajax')){
-			skymvc_test_page_auto();
+			 
 			C()->goALL("success",0,$tpl_var);
 		}else{
 			$this->assign($tpl_var,$value);
@@ -74,7 +75,7 @@ class smarty{
 		 
 		ob_start();
 		extract($this->_var);
-		 
+		if(!file_exists($this->template_dir."/".$filename))  exit($filename."模板不存在");
 		require $this->template_dir."/".$filename;
 		$out=ob_get_contents();
 		ob_end_clean();
@@ -82,6 +83,9 @@ class smarty{
 	}
 	
 	public function inc($filename){
+		if(!file_exists($this->template_dir."/".$filename))  exit($filename."模板不存在");
+		extract($this->_var);
+		 
 		require $this->template_dir."/".$filename;
 	}
 	

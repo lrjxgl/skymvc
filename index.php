@@ -154,6 +154,7 @@ $html_dir="";//生成静态文件夹
 $rewrite_on=REWRITE_ON;//是否开启伪静态 0不开 1开启
 $smarty_caching=true;//是否开启缓存
 $smarty_cache_lifetime=3600;//缓存时间
+define("SMARTYPHP","smarty");
 require("./skymvc/skymvc.php");
 //用户自定义初始化函数
 function userinit(&$base){

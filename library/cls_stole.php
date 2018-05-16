@@ -103,20 +103,7 @@ class stole{
 			return false;
 		}
 	}
-	/*获取匹配数据*/
-	public function preg_data($preg,$content=""){
-		$content=$content?$content:$this->content;
-		$tags=$this->getTag($preg);
-		$preg=$this->getPreg($preg);
-		preg_match("/$preg/iUs",$content,$a);
-		$arr=array();
-		if($tags){
-			foreach($tags as $k=>$v){
-				$arr[$v]=isset($a[$k+1])?$a[$k+1]:array();
-			}
-		}
-		return $arr;
-	}
+	 
 	/*
 	*正则多条匹配
 	*/
