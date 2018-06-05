@@ -27,6 +27,7 @@
 		}
 		function get($url,$data=array()){
 			$this->init($url);
+			curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'GET');
 			if($this->curl_json){
 				$this->setJson($data);
 				curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);
@@ -39,7 +40,8 @@
 		}
 		
 		function post($url,$data=array(),$header=array()){
-			$this->init($url,$header); 
+			$this->init($url,$header);
+			//curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'POST'); 
 		    curl_setopt($this->ch, CURLOPT_POST, TRUE);
 		    if($this->curl_json){
 				$this->setJson($data);
@@ -60,6 +62,10 @@
 			curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'PUT');
 			curl_setopt($this->ch, CURLOPT_POSTFIELDS, $data);			 
 			$content= curl_exec($this->ch);
+			
+			if($content===false){
+		    	exit( curl_error($this->ch) ) ;
+		    }
 			curl_close($this->ch);
 			return $content;
 		}

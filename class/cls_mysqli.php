@@ -44,10 +44,12 @@ class mysql
 	  * 连接mysql
 	  * */
 	 public function connect($config=array()){
-		if(!empty($config)){
+		if(!empty($config)){			
 			$master=$config;
+			$this->dbconfig=$config;
 		}else{
-			$master=$this->dbconfig['master'];
+			$master=$this->dbconfig;
+			
 		}
 		$arr=explode(":",$master['host']);
 		$host=$arr[0];
@@ -70,8 +72,15 @@ class mysql
 	  * 执行sql语句
 	  */
 	 public function query($sql){
-	 	if(!$this->db->ping()){
+	 	if(!$this->db){
+			$this->connect();
+			return $this->query($sql);
+	 		 
+		}
+	 	if(!@$this->db->ping()){
 	 		$this->connect();
+	 		return $this->query($sql);
+	 		 
 	 	}
 		   
 		if($this->testmodel){
@@ -80,9 +89,7 @@ class mysql
 			$GLOBALS['skysqlnum'] ++;
 		}
 		$this->sql=$sql;
-		if(!$this->db){
-			$this->connect();
-		}
+		
 		$this->stime=microtime(true);
 		$this->query= $this->db->query($sql);
 	 	
@@ -408,7 +415,7 @@ class mysql
 	}
 	
 	public function close(){
-		//$this->db=NULL;
+		$this->db=NULL;
 	}
 	/*生成md5缓存的key*/
 	public function md5key($sql){

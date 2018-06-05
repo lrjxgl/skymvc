@@ -30,11 +30,7 @@ class mysql
 	 /**
 	  * 设置参数
 	  * $config=array(
-	  * 	"master"=>array("localhost:","root","password","database"),//主数据库 必须的 以下从数据库非必须
-	  * 	"slave"=>array(
-	  * 				array("slave1","root","password","database"),
-	  * 				array("slave2","root","password","database"),
-	  * 			),
+	  * 	"host"=>"127.0.0.1:3306","user"=>"root","pwd"=>"123","database"=>"skymvc"
 	  * )
 	  */
 	 public function set($config){
@@ -44,10 +40,12 @@ class mysql
 	  * 连接mysql
 	  * */
 	 public function connect($config=array()){
-		if(!empty($config)){
+		if(!empty($config)){			
 			$master=$config;
+			$this->dbconfig=$config;
 		}else{
-			$master=$this->dbconfig['master'];
+			$master=$this->dbconfig;
+			
 		}
 		$arr=explode(":",$master['host']);
 		$host=$arr[0];
@@ -82,10 +80,20 @@ class mysql
 			$this->sql=$sql;
 			if(!$this->db){
 				$this->connect();
+				return $this->query($sql);
+	 			 
 			}
 			$this->stime=microtime(true);
 			$this->query=$rs = $this->db->prepare($sql);
-			$rs->execute();
+			if(!@$rs->execute()){
+				if($this->query->errorCode()=='HY000'){
+					$this->connect();
+					return $this->query($sql);
+				 
+				}
+				 
+			}
+			
 			 
 			
 			if($this->testmodel){
@@ -102,7 +110,8 @@ class mysql
 				}
 			};
 			return $rs;
-		}catch(PDOException $e){  
+		}catch(PDOException $e){ 
+			echo "重连"; 
 			if($e->errorInfo[0] == 70100 || $e->errorInfo[0] == 2006){  
 				$this->connect();
 				return $this->query($sql);  
@@ -409,7 +418,7 @@ class mysql
 	}
 	
 	public function close(){
-		//$this->db=NULL;
+		$this->db=NULL;
 	}
 	/*生成md5缓存的key*/
 	public function md5key($sql){
