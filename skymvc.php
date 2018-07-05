@@ -79,13 +79,13 @@ function loadFun($files){
 	if(is_array($files)){
 		foreach($files as $file){
 			if(file_exists(ROOT_PATH."skymvc/loadfun/fun_".$file.".php")){
-				require(ROOT_PATH."skymvc/loadfun/fun_".$file.".php");
+				require_once(ROOT_PATH."skymvc/loadfun/fun_".$file.".php");
 			}
 			
 		}
 	}else{
 		if(file_exists(ROOT_PATH."skymvc/loadfun/fun_".$files.".php")){
-			require(ROOT_PATH."skymvc/loadfun/fun_".$files.".php");
+			require_once(ROOT_PATH."skymvc/loadfun/fun_".$files.".php");
 		}
 		
 	}
@@ -159,7 +159,7 @@ function M($model,&$base=NULL){
 	}else{
 		
 		if(file_exists(	MODEL_DIR."/$model.model.php")){		
-			require   MODEL_DIR."/$model.model.php";
+			require_once   MODEL_DIR."/$model.model.php";
 			//controler  model调用
 			$_model="{$model}Model";
 					
@@ -193,7 +193,7 @@ function MM($module,$model,&$base=NULL){
 		return $_MDS[$model.'MModel'];
 	}else{
 		if(file_exists(ROOT_PATH."module/".$module."/source/model/$model.model.php")){		
-			require    ROOT_PATH."module/".$module."/source/model/$model.model.php";
+			require_once    ROOT_PATH."module/".$module."/source/model/$model.model.php";
 			$_model="{$model}Model";
 			$m=new $_model($base);
 			$m->setDb($model);
@@ -227,7 +227,7 @@ function C($ctrl='',$dir=false){
 			$file= $dir."/".$ctrl.".ctrl.php";
 			 
 			if(file_exists($file)){
-				include $file;
+				include_once $file;
 				$ctrlClass= $ctrl."Control";
 				$GLOBALS['control_'.$ctrl]=new $ctrlClass();
 				if(method_exists($ctrlClass,'onInit')){
@@ -251,7 +251,7 @@ function cc($module='',$ctrl='',$dir='index'){
 		}else{
 			$file=ROOT_PATH."module/".$module."/source/$dir/$ctrl.ctrl.php";		 
 			if(file_exists($file)){
-				include $file;
+				include_once $file;
 				$ctrlClass= $ctrl."Control";
 				return $GLOBALS[$module.'_control_'.$ctrl]=new $ctrlClass();
 				
