@@ -2,7 +2,7 @@
 if(!defined("ROOT_PATH")){
 	define("ROOT_PATH",  str_replace("\\", "/", dirname(dirname(__FILE__)))."/");
 }
-define("SKYVERSION",5.1);
+define("SKYVERSION",5.2);
 //全局变量
 //sql执行语句
 $GLOBALS['skysqlrun']="";
