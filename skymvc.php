@@ -26,7 +26,7 @@ if(!defined("LANG")){
 $st=microtime(true);
 require("function/fun_error.php");
 require("function/fun_file.php");
-require("function/fun_url.php");
+require_once("function/fun_url.php");
 require("function/function.php");
 require("function/fun_gps.php");
 $dbclass=isset($dbclass)?$dbclass:"pdo";
@@ -34,7 +34,20 @@ require("class/cls_".$dbclass.".php");//引入数据库文件
 require("class/cls_model.php");//引入模型
 require("class/cls_cache.php");
 require("class/cls_session.php");
- 
+//加载library
+spl_autoload_register(function ($class) {
+	$f=ROOT_PATH."extends/".'/library/cls_' . $class . '.php';
+	if(file_exists($f)){
+		require_once $f;
+	}else{
+		$f=dirname(__FILE__).'/library/cls_' . $class . '.php';
+		if(file_exists($f)){
+			require_once $f;
+		}
+	}
+	
+    
+}); 
 /*加载用户自定义*/
 if(!empty($user_extends)){
 	foreach($user_extends as $ex){
@@ -47,9 +60,7 @@ if(!defined("REWRITE_TYPE")){
 if(!defined("WAP_DOMAIN")){
 	define("WAP_DOMAIN","");
 }
-if(defined("REWRITE_TYPE")  && REWRITE_TYPE=='pathinfo'){
-	url_get($_SERVER['REQUEST_URI']);
-}
+url_get($_SERVER['REQUEST_URI']);
 if(is_mobile() or get('iswap') or WAP_DOMAIN==$_SERVER['HTTP_HOST']){
 	define("ISWAP",1);
 }else{

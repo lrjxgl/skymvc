@@ -432,7 +432,7 @@ function arr2str($arr){
 	return urlencode(base64_encode(json_encode($arr)));
 }
 function str2arr($str){
-	return json_decode(base64_decode(urldecode($str)));
+	return json_decode(base64_decode(urldecode($str)),true);
 }
 /**
 *@简易字符串转js

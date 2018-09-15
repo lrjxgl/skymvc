@@ -66,8 +66,8 @@ function rewrite($url){
 /**
 *解析pathinfo 路径
 */
-function url_get($url,$appindex="index.php|admin.php|module.php"){
-	if(preg_match("/".$appindex."/i",$url)){
+function url_get($url,$appindex="index.php|admin.php|module.php|app.php|shop.php"){
+	if(preg_match("/(".$appindex.")\//i",$url)){
 		$query=preg_replace("/.*(".$appindex.")/i","",$url);
 		$basename=str_replace($query,"",$url);
 		$para=explode("?",$query);
@@ -77,7 +77,7 @@ function url_get($url,$appindex="index.php|admin.php|module.php"){
 			$_GET['m']=$data[1];
 			unset($data[1]);
 		}
-		
+		echo "get",$url;
 		if(isset($data[2])){
 			$_GET['a']=$data[2];
 			unset($data[2]);
@@ -99,30 +99,14 @@ function url_get($url,$appindex="index.php|admin.php|module.php"){
 			}
 		}
 
-	}elseif($len=strpos($url,"module.php")!==false){
-		$query=preg_replace("/.*module\.php/i","",$url);
-		$basename=str_replace($query,"",$url);
-		$data=explode("/",$query);
-		unset($data[0]);
-		if(isset($data[1])){
-			$_GET['m']=$data[1];
-			unset($data[1]);
-		}
-		
-		if(isset($data[2])){
-			$_GET['a']=$data[2];
-			unset($data[2]);
-		}
-		if(!empty($data)){
-			foreach($data as $v){
-				$c=explode("-",$v);
-				if(isset($c[1])){
-					$_GET[$c[0]]=$c[1];
-				}
-			}
-		}
-	}
+	} 
 	 
+}
+
+function parseStrLink($str){
+	$arr=str2arr($str);
+	$url=$arr['path']."?m=".$arr['m']."&a=".$arr['a']."&".$arr['param'];
+	return $url;
 }
 
 ?>

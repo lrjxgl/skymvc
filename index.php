@@ -131,10 +131,7 @@ file_put_contents("../config/version.php",$str);
 	$str='<?php
 error_reporting(E_ALL ^ E_NOTICE);
 header("Content-type:text/html; charset=utf-8");
-if(ini_get("register_globals"))
-{
-	die("请关闭全局变量");
-}
+ 
  
 require("config/config.php");
 require("config/const.php");
@@ -174,10 +171,6 @@ function userinit(&$base){
 		$str='<?php
 error_reporting(E_ALL ^ E_NOTICE);
 header("Content-type:text/html; charset=utf-8");
-if(ini_get("register_globals"))
-{
-	die("请关闭全局变量");
-}
  
 require("config/config.php");
 require("config/const.php");
@@ -217,6 +210,18 @@ header("Content-type:text/html; charset=utf-8");
 define("ROOT_PATH",  str_replace("\\\\", "/", dirname(__FILE__))."/");
 require(ROOT_PATH."config/config.php");
 require(ROOT_PATH."config/const.php");
+/***解析pathinfo*/
+$url=$_SERVER[\'REQUEST_URI\'];
+if(preg_match("/module.php\//i",$url)){	 
+	$query=preg_replace("/.*module.php/i","",$url);
+	$basename=str_replace($query,"",$url);
+	$para=explode("?",$query);
+	$data=explode("/",$para[0]);
+	if(isset($data[1])){
+		$_GET[\'m\']=$data[1];
+	}
+}	
+/**End**/	
 $module=isset($_GET[\'module\'])?$_GET[\'module\']:"";
 $m=isset($_GET[\'m\'])?$_GET[\'m\']:"";
 $mm=explode("_",$m);

@@ -200,6 +200,7 @@ class mysql
 		if($rscount){
 			$rscount=$this->getCount($table,isset($data['where'])?$data['where']:'');
 		}
+		$rscount=intval($rscount);
 		return $this->getAll("SELECT {$fields} FROM ".TABLE_PRE."{$table}  $where {$order} LIMIT $start,$pagesize ");
 		
 	}
@@ -240,6 +241,7 @@ class mysql
 		if($rscount){
 			$rscount=$this->getCount($table,isset($data['where'])?$data['where']:'');
 		}
+		$rscount=intval($rscount);
 		return $this->getCols("SELECT {$fields} FROM ".TABLE_PRE."{$table}  {$where} {$order} LIMIT $start,$pagesize ");
 	}
 	
