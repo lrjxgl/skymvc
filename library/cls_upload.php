@@ -38,45 +38,26 @@ class upload{
 		$this->umkdir($uploaddir);
 		$bname=basename($FILE['name']);
 		$f_type=strtolower(trim(substr(strrchr($bname, '.'), 1)));//获取文件后缀名
-		if(!in_array($f_type,$this->sysallowtype)){
-			return array('err'=>'文件格式'.$f_type.'禁止上传','filename'=>'');
+		//判断文件是否合法
+		$fileType=$this->getTrueType($FILE['tmp_name']);
+		if(!in_array($fileType,$this->sysallowtype) || !in_array($fileType,$this->allowtype)){
+				@unlink($FILE['tmp_name']);
+				return array('err'=>'文件格式'.$fileType.'禁止上传','filename'=>$FILE['name']);
 		}
 		$f= md5(time().$FILE['name']);
 		$uploadfile=$uploaddir.$f.".$f_type";
-	
-		  
 		if($this->upimg==true)
 		{			
 			$fs=getimagesize($FILE['tmp_name']);
 			if($fs[0]<5 || $fs[1]<5)
 			{
 				@unlink($FILE['tmp_name']);
-				return  array("err"=>'图像必须大于5像素','filename'=>'');
+				return  array("err"=>'图像必须大于5像素','filename'=>$FILE['name']);
 			}else{
 				return $this->move_file($FILE['tmp_name'],$uploadfile,$FILE['name'],$FILE['type'],$FILE['size']);
 			}
 		}
-		
-		$filetype=$this->getMime($FILE['tmp_name'],$FILE['type']);	
-		$filetype=strtolower($this->getfiletype($filetype));//真实的文件后缀
-		
-		if($f_type!=$filetype)
-		{
-			if(!in_array($filetype,array('jpeg','gif','jpg','png','bmp',"flv")))
-			{
-				return array('err'=>"文件后缀{$f_type}与真实文件类型{$filetype}不一致,如果php>5.3请开启fileinfo",'filename'=>'');
-			}elseif(!$this->safecheck){
-				
-				return $this->move_file($FILE['tmp_name'],$uploadfile,$FILE['name'].$filetype);
-			}
-		}
-		
-		if(!(in_array($filetype,$this->sysallowtype) && in_array($filetype,$this->allowtype)) or !(in_array($f_type,$this->sysallowtype) && in_array($f_type,$this->allowtype)))
-		{
-			@unlink($FILE['tmp_name']);
-			return array('err'=>$f_type.'文件类型不允许','filename'=>'');
-		}
-		
+
 		return $this->move_file($FILE['tmp_name'],$uploadfile,$FILE['name'],$FILE['type'],$FILE['size']);
 		 
 		
@@ -92,6 +73,11 @@ class upload{
 			@unlink($from);
 			return array('err'=>$original.'上传失败，请检查文件夹是否有写入权限','filename'=>'');			
 		}
+	}
+	
+	public function getTrueType($file){
+			$mime=$this->getMime($file);
+			return $this->getfiletype($mime);
 	}
 	
 	public function getMime($file,$mime=""){

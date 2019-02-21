@@ -5,13 +5,9 @@ class model{
 	public $table;
 	public $table_all=NULL;
 	public $tmpTable=false;  
-	function __construct(&$base)
+	function __construct()
 	{
-		$this->base=$base;
-		if(isset($base->db)){
-			$this->db=$base->db;	
-		}
-			
+		
 	}
 	
 	public function setDb($table=NULL){
@@ -84,39 +80,39 @@ class model{
 	/**
 	*获取全部数据
 	*/
-	public function getAll($sql,$cache=0,$expire=60){
-		return $this->db->getAll($sql,$cache,$expire);
+	public function getAll($sql){
+		return $this->db->getAll($sql);
 	}
 	/**
 	*获取一个字段数据
 	*/
-	public function getOne($sql,$cache=0,$expire=60){
-		return $this->db->getOne($sql,$cache,$expire);
+	public function getOne($sql){
+		return $this->db->getOne($sql);
 	}
 	/**
 	*获取一列数据
 	*/
-	public function getCols($sql,$cache=0,$expire=60){
-		return $this->db->getCOls($sql,$cache,$expire);
+	public function getCols($sql){
+		return $this->db->getCOls($sql);
 	}
 	/**
 	*获取一行数据
 	*/
-	public function getRow($sql,$cache=0,$expire=60){
-		return $this->db->getRow($sql,$cache,$expire);
+	public function getRow($sql){
+		return $this->db->getRow($sql);
 	}
 	/**
 	*获取全部数据
 	* data array("table","where"=>array(),"order","start","pagesize","fields")
 	*/
-	public function select($option=array(),&$rscount=false,$cache=0,$expire=60){
+	public function select($option=array(),&$rscount=false){
 		/*
 		if(!isset($option['where'])){
 			 
 			exit('请确认sql select where条件'.$this->table);
 		}
 		*/
-		$data=$this->db->select($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$option,$rscount,$cache,$expire);
+		$data=$this->db->select($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$option,$rscount);
 		$this->clearTable();
 		return $data;
 	}
@@ -124,8 +120,8 @@ class model{
 	*获取一个字段
 	*data array("table","where"=>array(),"order","start","pagesize","fields")
 	*/
-	public function selectOne($data=array(),$cache=0,$expire=60){
-		$data=$this->db->selectOne($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$data,$cache,$expire);
+	public function selectOne($data=array()){
+		$data=$this->db->selectOne($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$data);
 		$this->clearTable();
 		return $data;
 	}
@@ -133,13 +129,13 @@ class model{
 	*获取一行信息
 	*data array("table","where"=>array(),"order","start","pagesize","fields")
 	*/
-	public function selectRow($data=array(),$cache=0,$expire=60){
+	public function selectRow($data=array()){
 		if(!is_array($data)){
 			$t=$data;
 			$data=array();
 			$data['where']=$t;
 		}
-		$data=$this->db->selectRow($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$data,$cache,$expire);
+		$data=$this->db->selectRow($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$data);
 		$this->clearTable();
 		return $data;
 	}
@@ -147,8 +143,8 @@ class model{
 	*获取一列信息
 	*data array("table","where"=>array(),"order","start","pagesize","fields")
 	*/
-	public function selectCols($data=array(),&$rscount=false,$cache=0,$expire=60){
-		$data=$this->db->selectCols($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$data,$rscount,$cache,$expire);
+	public function selectCols($data=array(),&$rscount=false){
+		$data=$this->db->selectCols($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$data,$rscount);
 		$this->clearTable();
 		return $data;
 	}
@@ -156,8 +152,8 @@ class model{
 	*获取记录总数
 	*data array("table","where"=>array(),"order","start","pagesize","fields")
 	*/
-	public function getCount($w=array(),$cache=0,$expire=60){
-		$data=$this->db->getCount($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$w,$cache,$expire);
+	public function getCount($w=array()){
+		$data=$this->db->getCount($this->tmpTable?$this->tmpTable:($this->table_all?$this->table_all:$this->table),$w);
 		$this->clearTable();
 		return $data;
 	}

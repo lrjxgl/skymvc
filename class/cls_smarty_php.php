@@ -6,7 +6,7 @@ class smarty{
     public $cache_dir      = '';//缓存文件夹
     public $compile_dir    = '';//编译文件夹
 	public $html_dir		='';//生成静态文件夹
-	public $htm_lfile="";
+	public $html_file="";
 	public $_var;
 	public function __construct(){
 		

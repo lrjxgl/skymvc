@@ -170,7 +170,7 @@ function str_format($str,$format='',$len=0){
 							$str=strip_tags($str);
 							break;
 					case "x":
-							$str=nRemoveXSS($str);
+							$str=removeXSS($str);
 							break;
 					case "r":
 							$str=round($str,$len);
@@ -190,11 +190,24 @@ function get_post_Html($arr){
 
 function arrRemoveXss($arr){
 	if(!empty($arr)){
-		return is_array($arr) ? array_map('arrRemoveXss', $arr) : nRemoveXSS(trim($arr));
+		return is_array($arr) ? array_map('arrRemoveXss', $arr) : removeXSS(trim($arr));
 	}
+}
+function removeXSS($str){
+	if(!empty($_POST)){
+		require_once ROOT_PATH."skymvc/HTMLPurifier/HTMLPurifier.auto.php";
+		require_once ROOT_PATH."config/xss.config.php";			
+		$html_purifier = new HTMLPurifier(xssConfig::init());
+		$clean_html = $html_purifier->purify($str);
+		return $clean_html;
+	}else{
+		return nRemoveXSS($str);
+	}
+	
 }
 
 function nRemoveXSS($str){
+	
 	$ra1 = array('javascript', 'vbscript', 'expression', 'applet', 'meta', 'xml', 'blink', 'link',  'script', 'embed', 'object', 'iframe', 'frame', 'frameset', 'ilayer', 'layer', 'bgsound','base','alert');
 	$ra2 = array('onabort', 'onactivate', 'onafterprint', 'onafterupdate', 'onbeforeactivate', 'onbeforecopy', 'onbeforecut', 'onbeforedeactivate', 'onbeforeeditfocus', 'onbeforepaste', 'onbeforeprint', 'onbeforeunload', 'onbeforeupdate', 'onblur', 'onbounce', 'oncellchange', 'onchange', 'onclick', 'oncontextmenu', 'oncontrolselect', 'oncopy', 'oncut', 'ondataavailable', 'ondatasetchanged', 'ondatasetcomplete', 'ondblclick', 'ondeactivate', 'ondrag', 'ondragend', 'ondragenter', 'ondragleave', 'ondragover', 'ondragstart', 'ondrop', 'onerror', 'onerrorupdate', 'onfilterchange', 'onfinish', 'onfocus', 'onfocusin', 'onfocusout', 'onhelp', 'onkeydown', 'onkeypress', 'onkeyup', 'onlayoutcomplete', 'onload', 'onlosecapture', 'onmousedown', 'onmouseenter', 'onmouseleave', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onmousewheel', 'onmove', 'onmoveend', 'onmovestart', 'onpaste', 'onpropertychange', 'onreadystatechange', 'onreset', 'onresize', 'onresizeend', 'onresizestart', 'onrowenter', 'onrowexit', 'onrowsdelete', 'onrowsinserted', 'onscroll', 'onselect', 'onselectionchange', 'onselectstart', 'onstart', 'onstop', 'onsubmit', 'onunload');
 	$ra = array_merge($ra1, $ra2);
@@ -208,7 +221,7 @@ function nRemoveXSS($str){
 	}
 	return $str;
 }
-
+ 
 
 /**
 * 将数组元素格式化成类似 '1','2','3' 的字符串
@@ -481,6 +494,7 @@ if(!function_exists("ipCity")){
 		$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
 		$d=json_decode($c,true);
 		if($d['code']==0 && !empty($d['data']['city_id'])){
+			$d['data']['county']=$d['data']['county']=='XX'?"":$d['data']['county'];
 			if($type==0){
 				cache()->set($key,$d['data'],3600000);
 				return $d['data'];
@@ -840,5 +854,9 @@ function week_list($week=0){
 	 return week_list("week".$w);
 	  
  }
-
+ function checkEmpty($str,$msg="请填写完整信息"){
+ 	if(empty($str)){
+ 		C()->goAll($msg,1);
+ 	}
+ }
 ?>

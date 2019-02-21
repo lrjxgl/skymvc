@@ -105,6 +105,10 @@ function url_get($url,$appindex="index.php|admin.php|module.php|app.php|shop.php
 
 function parseStrLink($str){
 	$arr=str2arr($str);
+	if(substr($arr["m"],0,4)=="mod_"){
+		$arr["path"]="/module.php";
+		$arr["m"]=str_replace("mod_","",$arr["m"]);
+	}
 	$url=$arr['path']."?m=".$arr['m']."&a=".$arr['a']."&".$arr['param'];
 	return $url;
 }

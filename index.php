@@ -125,8 +125,18 @@ define("VERSION_NUM",1);
 define("ONLINEUPDATE","http://'.$_SERVER['HTTP_HOST'].'/onlineupdate/");
 ?>';
 file_put_contents("../config/version.php",$str);
-
-
+//生成xss配置文件
+$str='<?php
+class xssConfig{
+	public static function init(){
+		$xssConfig   = HTMLPurifier_Config::createDefault();
+		//设置允许的html
+		//$xssConfig->set("HTML.Allowed","div,span");
+		return $xssConfig;
+	}
+}
+';
+file_put_contents("../config/xss.config.php",$str);
 	//生成首页
 	$str='<?php
 error_reporting(E_ALL ^ E_NOTICE);

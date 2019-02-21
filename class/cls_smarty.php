@@ -31,7 +31,7 @@ class Smarty
     public $_seterror      = 0;//是否错误	
     public $_temp_key      = array();  // 临时存放 foreach 里 key 的数组
     public $_temp_val      = array();  // 临时存放 foreach 里 item 的数组
-	public $htm_lfile="";
+	public $html_file="";
 	public $_vars;
 	public $dir;
 

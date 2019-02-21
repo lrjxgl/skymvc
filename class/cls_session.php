@@ -4,7 +4,7 @@ class session{
 	 
 	function __construct()
 	{
-		session_module_name('files'); 		
+		  		
 	 
 		session_set_save_handler( 
             array(&$this, 'open'), 
