@@ -38,6 +38,9 @@ class upload{
 		$this->umkdir($uploaddir);
 		$bname=basename($FILE['name']);
 		$f_type=strtolower(trim(substr(strrchr($bname, '.'), 1)));//获取文件后缀名
+		if(!in_array($f_type,$this->allowtype)){
+			return array('err'=>'文件格式'.$f_type.'禁止上传','filename'=>'');
+		}
 		//判断文件是否合法
 		$fileType=$this->getTrueType($FILE['tmp_name']);
 		if(!in_array($fileType,$this->sysallowtype) || !in_array($fileType,$this->allowtype)){
@@ -49,6 +52,7 @@ class upload{
 		if($this->upimg==true)
 		{			
 			$fs=getimagesize($FILE['tmp_name']);
+			
 			if($fs[0]<5 || $fs[1]<5)
 			{
 				@unlink($FILE['tmp_name']);

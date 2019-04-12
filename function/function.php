@@ -482,6 +482,7 @@ function realip() {
 	} elseif(isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], 'unknown')) {
 		$onlineip = $_SERVER['REMOTE_ADDR'];
 	}
+	$onlineip=sql(html($onlineip));
 	return $onlineip;
 }
 
