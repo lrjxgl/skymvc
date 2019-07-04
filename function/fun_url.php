@@ -77,7 +77,7 @@ function url_get($url,$appindex="index.php|admin.php|module.php|app.php|shop.php
 			$_GET['m']=$data[1];
 			unset($data[1]);
 		}
-		echo "get",$url;
+	 
 		if(isset($data[2])){
 			$_GET['a']=$data[2];
 			unset($data[2]);
@@ -104,7 +104,11 @@ function url_get($url,$appindex="index.php|admin.php|module.php|app.php|shop.php
 }
 
 function parseStrLink($str){
+	if(empty($str)) return false;
 	$arr=str2arr($str);
+	if(!isset($arr["m"])){
+		return false;
+	}
 	if(substr($arr["m"],0,4)=="mod_"){
 		$arr["path"]="/module.php";
 		$arr["m"]=str_replace("mod_","",$arr["m"]);

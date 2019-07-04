@@ -4,7 +4,7 @@ class mysql
 {
 	public $db;
 	public	$dbconfig=array();//配置
-	public	$charset="utf8";//编码
+	public	$charset="utf8mb4";//编码
 	public	$testmodel=false;//测试模式 开启后将会输出错误的sql语句 
 	public $base;
 	public $query=NULL;//最近操作的
@@ -13,7 +13,7 @@ class mysql
 	/**
 	*mysql初始化 
 	*/
-	 public function __construct($data=array("charset"=>"utf8")){
+	 public function __construct($data=array("charset"=>"utf8mb4")){
 		 
 		 if(!defined("TABLE_PRE")){
 			 define("TABLE_PRE","");
@@ -65,21 +65,21 @@ class mysql
 		            . $this->db->connect_error);
 		}
 		$this->db->query("SET sql_mode=''"); 
-		$this->db->query("SET NAMES ".$this->charset);
+		$this->db->set_charset( $this->charset);;
 		
 	 }
 	 /**
 	  * 执行sql语句
 	  */
-	 public function query($sql){
+	 public function query($sql,$param=array()){
 	 	if(!$this->db){
 			$this->connect();
-			return $this->query($sql);
+			return $this->query($sql,$param);
 	 		 
 		}
 	 	if(!@$this->db->ping()){
 	 		$this->connect();
-	 		return $this->query($sql);
+	 		return $this->query($sql,$param);
 	 		 
 	 	}
 		   
@@ -91,8 +91,16 @@ class mysql
 		$this->sql=$sql;
 		
 		$this->stime=microtime(true);
-		$this->query= $this->db->query($sql);
-	 	
+		//$this->query= $this->db->query($sql);
+	 	if(!empty($param)){
+	 				 $stmt =  $this->db->stmt_init();
+	 				 $stmt->prepare($sql);
+	 				 $stmt=$this->stmt_bind_param($stmt,$param);
+	 				 $stmt->execute();
+	 				 $this->query=$stmt->get_result();
+	 	}else{
+	 				$this->query=$this->db->query($sql);
+	 	}
 		 
 		
 		if($this->testmodel){
@@ -112,7 +120,30 @@ class mysql
 		return $this->query;
 		 
 	 }
-	 
+	 public function stmt_bind_param($stmt,$params){
+	 		if ($params != null) {
+	 			$types = ''; 
+	 			foreach($params as $param) {
+	 			  if(is_int($param)) {
+	 				$types .= 'i'; //integer
+	 			  } elseif (is_float($param)) {
+	 				$types .= 'd'; //double
+	 			  } elseif (is_string($param)) {
+	 				$types .= 's'; //string
+	 			  } else {
+	 				$types .= 'b';
+	 			  }
+	 			}
+	 			$bind_names[] = $types;
+	 			for ($i=0; $i<count($params);$i++) {
+	 			  $bind_name = 'bind' . $i;
+	 			  $$bind_name = $params[$i];
+	 			  $bind_names[] = &$$bind_name;
+	 			}
+	 			call_user_func_array(array($stmt,'bind_param'),$bind_names);
+	 		  }
+	 		  return $stmt; 
+	 }
 	 public function slowLog(){
 		 if(SQL_SLOW_LOG==1){
 			$qt=(microtime(true)-$this->stime);
@@ -247,13 +278,13 @@ class mysql
 	public function getCount($table,$w=array()){
 		
 		$where=empty($w)?"":" where ".$this->compile_array($w," AND ");
-		return $this->getOne("SELECT COUNT(1) FROM ".TABLE_PRE.$table." $where ");
+		return $this->getOne("SELECT COUNT(*) FROM ".TABLE_PRE.$table." $where ");
 	}
 	/**
 	 * 获取全部数据
 	 */
-	public function getAll($sql){
-		$res=$this->query($sql);
+	public function getAll($sql,$param=array()){
+		$res=$this->query($sql,$param);
 		$data=array();
 		if($res!==false)
 		{
@@ -273,8 +304,8 @@ class mysql
 	/**
 	 * 获取一个字段
 	 */
-	public function getOne($sql){
-		$res=$this->query($sql);
+	public function getOne($sql,$param=array()){
+		$res=$this->query($sql,$param);
 		
 		if($res !==false){
 			$rs=$res->fetch_array(MYSQLI_ASSOC);
@@ -294,8 +325,8 @@ class mysql
 	}
 		
 	/*获取一行*/
-	 public function getRow($sql){
-        $res = $this->query($sql);
+	 public function getRow($sql,$param=array()){
+        $res = $this->query($sql,$param);
         
         if ($res !== false){
 		 	
@@ -307,9 +338,9 @@ class mysql
         }
     }
     /*获取一列*/
-    public function getCols($sql)
+    public function getCols($sql,$param=array())
 	{
-		$res=$this->query($sql);
+		$res=$this->query($sql,$param);
 		$data=array();
 		if($res!==false){
 			while($rs=$res->fetch_array(MYSQLI_ASSOC)){
@@ -386,7 +417,8 @@ class mysql
 				$value=stripslashes($value);
 				$value=str_replace("\'","'",$value);  
 				$value=str_replace('\"','"',$value);
-				$value=addslashes(trim($value));				
+				//$value=addslashes(trim($value));
+				$value=$this->db->real_escape_string($value);
 				return $value;	
 			}
 		}	 

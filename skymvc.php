@@ -326,8 +326,28 @@ if(!file_exists(CONTROL_DIR."/$m.ctrl.php"))
 {
 	$_GET['m']=$m="index";
 }
+$apiversion=get("apiversion","h");
+if($apiversion){
+	$apiversion=str_replace(array("..","\/"),"",$apiversion);
+	if(file_exists(CONTROL_DIR."/$m.ctrl.{$apiversion}.php")){
+		
+		include(CONTROL_DIR."/$m.ctrl.{$apiversion}.php");
+	}else{
+		if(!file_exists(CONTROL_DIR."/$m.ctrl.php")){
+			exit("url不存在");
+		}else{
+			include(CONTROL_DIR."/$m.ctrl.php");
+		};
+	}
+}else{
+	if(!file_exists(CONTROL_DIR."/$m.ctrl.php")){
+		exit("url不存在");
+	}else{
+		include(CONTROL_DIR."/$m.ctrl.php");
+	}
+}
 
-include(CONTROL_DIR."/$m.ctrl.php");
+
 
 $classname = $m.'Control';
 

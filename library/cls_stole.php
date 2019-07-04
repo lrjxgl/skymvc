@@ -13,41 +13,69 @@ class stole{
 	public $charset;
 	public $domain;
 	public $dir;
+	public $iswap=0;
+	public $isCurl=true;
 	public function __construct(){
 		
 	}
 	public function getContent($url,$proxy=""){
 		$url=str_replace("&amp;","&",$url);
 		$url=str_replace("/../","/",$url);
+		$url=str_replace("////","//",$url);
 		$this->dir=dirname($url)."/";
 		$a=parse_url($url);
 		$this->domain=$a['scheme']."://".$a['host']."/";
 		 
-		$this->content=$this->curl_get_contents($url,$proxy);
+		if($proxy==""){
+			if($this->isCurl){
+				 
+				$this->content=$this->curl_get_contents($url,$proxy);
+			}else{
+				$this->content=file_get_contents($url);
+			}
+		}else{
+			 
+			 $this->content=$this->curl_get_contents($url,$proxy);
+		}
+		
 		if(empty($this->content)) return false;
 		//替换链接位置
 		 
 		$this->content=$this->replace_src();
 		//替换图片
 		$this->content=preg_replace("/<input([^>]*)type=\"image\"([^>]*)>/i","<img \\1 \\2>",$this->content);
+		
 		$this->charset=$this->getCharset();
-		 
+	 
 		if($this->charset!="utf-8"){
 			
 			$this->content=mb_convert_encoding($this->content,"utf-8",$this->charset); 
 		}
+		
 		 
 	}
 	
 	function curl_get_contents($url,$proxy=""){
 		$ch=curl_init();
 		if(!empty($proxy)){
-			curl_setopt ($ch, CURLOPT_PROXY, $proxy);
-			 
+			$p=explode(":",$proxy);
+			curl_setopt ($ch, CURLOPT_PROXY, $p[0]);
+			$port=isset($p[1])?html($p[1]):"80";
+			curl_setopt($ch, CURLOPT_PROXYPORT,$port);  
 		}
+		//$cookie = tempnam('./temp/cookies','cookie');
+		//curl_setopt($ch,CURLOPT_COOKIEJAR,$cookie);
 		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (compatible; MSIE 90.0; Windows NT 6.1; Trident/6.0)"); 
+		curl_setopt($ch, CURLOPT_MAXREDIRS, 2);  
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);  
+		if($this->iswap){
+			curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1"); 
+		}else{
+			curl_setopt($ch,CURLOPT_USERAGENT,"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"); 
+		}
+		
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		$c=curl_exec($ch);
 		curl_close($ch);
@@ -61,8 +89,10 @@ class stole{
 			foreach($arr[1] as $v){
 				if(in_array($v,$ins)) continue;
 				$ins[]=$v;
-				
-				if(substr($v,0,1)=="/"){
+				if(substr($v,0,2)=="//"){
+					$http=substr($this->domain,0,5)=="https"?"https:":"http:";
+					$content=str_replace($v,$http.$v,$content);
+				}elseif(substr($v,0,1)=="/"){
 					$content=str_replace($v,$this->domain.$v,$content);
 				}elseif(substr($v,0,5)=="http:" or substr($v,0,5)=="https"){
 					
@@ -82,9 +112,14 @@ class stole{
 		if(isset($a[1]) && !empty($a[1])){
 			return strtolower($a[1]);
 		}else{
+			$icon=mb_convert_encoding($content,"utf-8","utf-8");
+			if($icon==$content){
+				return "utf-8";
+			}else{
+				return "gbk";
+			}
 			
 			
-			return "utf-8";
 			
 		}
 		
