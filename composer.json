@@ -1,0 +1,24 @@
+{
+  "name": "lrjxgl/skymvc",
+  "description": "skymvc框架",
+  "keywords": [
+    "skymvc",
+	"php mvc看框架"
+  ],
+  "authors": [
+    {
+      "name": "老雷",
+      "email": "362606856@qq.com"
+    }
+  ],
+
+  "require": {
+    "php": ">=7.0"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Skymvc\\": "./"
+    }
+  }
+}

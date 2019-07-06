@@ -4,7 +4,11 @@
 */
 /*全局变量定义*/
 function G($var){
-	return $GLOBALS[$var];
+	if(isset($GLOBALS[$var])){
+		return $GLOBALS[$var];
+	}
+	return 0;	
+	
 }
  
 
