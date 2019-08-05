@@ -495,35 +495,20 @@ function realip() {
 	return $onlineip;
 }
 
-/**
-*
-{"code":0,"data":{"ip":"210.75.225.254","country":"\u4e2d\u56fd","area":"\u534e\u5317",
-"region":"\u5317\u4eac\u5e02","city":"\u5317\u4eac\u5e02","county":"","isp":"\u7535\u4fe1",
-"country_id":"86","area_id":"100000","region_id":"110000","city_id":"110000",
-"county_id":"-1","isp_id":"100017"}}
-其中code的值的含义为，0：成功，1：失败。
-*
-*/
-if(!function_exists("ipCity")){
-	function ipCity($ip,$type=0){
-		if($ip=="127.0.0.1") return false;
-		$key="ip".$type."_".str_replace(".","_",$ip);
-		if($data=cache()->get($key)) return $data;
-		$c=file_get_contents("http://ip.taobao.com/service/getIpInfo.php?ip=".$ip);
-		$d=json_decode($c,true);
-		if($d['code']==0 && !empty($d['data']['city_id'])){
-			$d['data']['county']=$d['data']['county']=='XX'?"":$d['data']['county'];
-			if($type==0){
-				cache()->set($key,$d['data'],3600000);
-				return $d['data'];
-			}else{
-				$data=$d['data']['region'].$d['data']['city'].$d['data']['county'];
-				cache()->set($key,$data,3600000);
-				return $data;
-			}
-		}else{
-			return false;
-		}
+function ipCity($ip,$type=0){
+	if($ip=="127.0.0.1") return false;
+	if(!file_exists(ROOT_PATH."extends/ip/IP4datx.class.php")) return false;
+	require_once ROOT_PATH."extends/ip/IP4datx.class.php";
+	$res=IP::find($ip);
+	if($type==0){
+		return array(
+			"country"=>$res[0],
+			"region"=>$res[1],
+			"city"=>$res[2],
+			"county"=>""
+		);
+	}else{
+		return $res[0].$res[1].$res[2];
 	}
 }
 
